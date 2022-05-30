@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">PostQuantumCryptographyBc</string>
+    <string name="consoleTitle"><b>Console</b></string>
+    <string name="btnRunCodeText">run your code</string>
+    <string name="btnClearConsoleText">clear console</string>
+    <string name="textViewConsoleText">. press the RUN YOUR CODE button</string>
+</resources>
