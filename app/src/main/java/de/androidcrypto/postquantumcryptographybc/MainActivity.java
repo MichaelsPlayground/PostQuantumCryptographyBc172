@@ -24,12 +24,14 @@ import org.bouncycastle.pqc.crypto.sphincs.SPHINCS256KeyPairGenerator;
 import org.bouncycastle.pqc.crypto.sphincs.SPHINCS256Signer;
 import org.bouncycastle.pqc.crypto.sphincs.SPHINCSPrivateKeyParameters;
 import org.bouncycastle.pqc.crypto.sphincs.SPHINCSPublicKeyParameters;
+import org.bouncycastle.pqc.jcajce.interfaces.CMCEKey;
 import org.bouncycastle.pqc.jcajce.provider.BouncyCastlePQCProvider;
 
 import org.bouncycastle.pqc.jcajce.interfaces.SPHINCSPlusKey;
 import org.bouncycastle.pqc.jcajce.spec.CMCEParameterSpec;
 import org.bouncycastle.pqc.jcajce.spec.SPHINCSPlusParameterSpec;
 import org.bouncycastle.util.Arrays;
+import org.bouncycastle.util.encoders.Hex;
 
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
@@ -46,6 +48,9 @@ import java.security.SecureRandom;
 import java.security.Security;
 import java.security.Signature;
 import java.security.SignatureException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -127,6 +132,32 @@ public class MainActivity extends AppCompatActivity {
         printlnX("BouncyCastle version: " + getBouncyCastleVersion());
         printlnX("BouncyCastle PQC version: " + getBouncyCastlePqcVersion());
 
+        /*
+        // Bouncy Castle issue 1169 error decoding signature bytes (SHA512withECDSA) while verifying
+        // https://github.com/bcgit/bc-java/issues/1169
+        byte[] data1 = Hex.decode("4ba2a3ef661721d9a298d974a29f60d7e4551f47bd213b938ad5ad1e149d080f53392670854c88d62a35a1e8db4244dc46672a1a111dec95da42a3db2b16afae");
+        byte[] publicKey1 = Hex.decode("30819b301006072a8648ce3d020106052b81040023038186000401fa9dc907b272ece7db51c9d1b4a78e27ef6657ec1c721eb681ee2018162b5d1ad92d5db71f8b21b91266c9b80f98c93ea29339b4af1fddcd824965e9144c36986b003432b3808243a2d4f9770c74f9d232bae27a1cf19a77726df7f28c86d02c0956203492667e41d10b601edadd1d2ef7ad4a5a4ed7166c1d1853bed303a419e32c13");
+        byte[] signature1 = Hex.decode("308188024201d44cda9dc4f3bd2f501ae64b5115baa49797ded537fdc8bf7fdf6629aaaaf199511a63155c96846c7edaf0776a1dd5192e66ecdf41d38354b3cab7b286a59b7710024201036418b6b9b6e4ffe873220f0a2e7ab75fbea8df19f149ee8a6650624aba721b110059d35650484a6464bcb99cc7b4b9984dbdaeb198b7446c4951ccfea02df60c");
+
+        byte[] data2 = Hex.decode("53742d9a35a0a563a89dbd4bfad6f8b052fa2313288f5dac258159724c0ba905b02a8e5701fff17ff0ccb009c5ea989ff496232ce5c7b299cc780a86280b3471");
+        byte[] publicKey2 = Hex.decode("30819b301006072a8648ce3d020106052b81040023038186000401fa9dc907b272ece7db51c9d1b4a78e27ef6657ec1c721eb681ee2018162b5d1ad92d5db71f8b21b91266c9b80f98c93ea29339b4af1fddcd824965e9144c36986b003432b3808243a2d4f9770c74f9d232bae27a1cf19a77726df7f28c86d02c0956203492667e41d10b601edadd1d2ef7ad4a5a4ed7166c1d1853bed303a419e32c13");
+        byte[] signature2 = Hex.decode("3081880242016f0c2b66d8b559631c682389fde37a13637f306abe53dd5e11283c82b980ad72c6e5ed7401bc8b71d5ec6ea16ad20a53d45b62ddb9b44fd0c0a1fa19fa4efbdaf40242000a1d45a4fab1110d2e569b3ebe4eccab0ef7d4d8252ce050e5454f33cf4e961e9c9dde84f190ca937f5ba1e9728ff624ed1ce624449dad132934f4bdb77213c63f");
+
+        printlnX("validate dataset 1");
+        try {
+            printlnX(String.valueOf(validate(data1, signature1, publicKey1)));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        printlnX("validate dataset 2");
+        try {
+            printlnX(String.valueOf(validate(data2, signature2, publicKey2)));
+        } catch (Exception e) {
+            e.printStackTrace();
+            printlnX(e.toString());
+        }
+        */
+
         printlnX("");
         printlnX("*** SPHINX signature with BC start ***");
 
@@ -182,15 +213,27 @@ public class MainActivity extends AppCompatActivity {
         printlnX("generated public key length:  " + publicKeyPlusEncoded.length + " key algorithm: " + publicKeyPlus.getAlgorithm());
 
         // generate the keys from a byte array
-        //SPHINCSPrivateKeyParameters privateKeyLoad = new SPHINCSPrivateKeyParameters(privateKeyEncoded);
-        //SPHINCSPublicKeyParameters publicKeyLoad = new SPHINCSPublicKeyParameters(publicKeyEncoded);
+        KeyFactory keyFact = null;
+        SPHINCSPlusKey sphincsPlusPrivateKey = null;
+        SPHINCSPlusKey sphincsPlusPublicKey = null;
+        try {
+            keyFact = KeyFactory.getInstance("SPHINCSPlus", "BCPQC");
+            sphincsPlusPrivateKey = (SPHINCSPlusKey) keyFact.generatePrivate(new PKCS8EncodedKeySpec(privateKeyPlusEncoded));
+            sphincsPlusPublicKey = (SPHINCSPlusKey) keyFact.generatePublic(new X509EncodedKeySpec(publicKeyPlusEncoded));
+        } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidKeySpecException e) {
+            e.printStackTrace();
+        }
 
         printlnX("\n* * * sign the dataToSign with the private key * * *");
-        byte[] signaturePlus = pqcSphincsPlusSignature(privateKeyPlus, dataToSign);
+        //byte[] signaturePlus = pqcSphincsPlusSignature(privateKeyPlus, dataToSign);
+        // this signature method runs with the private key recovered from encoded data
+        byte[] signaturePlus = pqcSphincsPlusSignature(sphincsPlusPrivateKey, dataToSign);
         printlnX("signature length: " + signaturePlus.length + " data: ** not shown due to length");
 
         printlnX("\n* * * verify the signature with the public key * * *");
-        boolean signaturePlusVerified = pqcSphincsPlusVerification(publicKeyPlus, dataToSign, signaturePlus);
+        //boolean signaturePlusVerified = pqcSphincsPlusVerification(publicKeyPlus, dataToSign, signaturePlus);
+        // this signature verification method runs with the public key recovered from encoded data
+        boolean signaturePlusVerified = pqcSphincsPlusVerification(sphincsPlusPublicKey, dataToSign, signaturePlus);
         printlnX("the signature is verified: " + signaturePlusVerified);
         printlnX("");
         printlnX("*** SPHINX Plus signature with BC end ***");
@@ -217,13 +260,27 @@ public class MainActivity extends AppCompatActivity {
 
             printlnX("generated private key length: " + privateKeyClassicMcEliece.getEncoded().length + " key algorithm: " + privateKeyClassicMcEliece.getAlgorithm());
             printlnX("generated public key length:  " + publicKeyClassicMcEliece.getEncoded().length + " key algorithm: " + publicKeyClassicMcEliece.getAlgorithm());
+            printlnX(("difference private - public key: " + (privateKeyClassicMcEliece.getEncoded().length - publicKeyClassicMcEliece.getEncoded().length)));
 
             // send the public key to the sender to encrypt data
             printlnX("\nsend the public key to the sender to encrypt data");
 
+            // generate the keys from a byte array
+            KeyFactory keyFactCmce = null;
+            CMCEKey cmcePrivateKey = null;
+            CMCEKey cmcePublicKey = null;
+            try {
+                keyFactCmce = KeyFactory.getInstance("CMCE", "BCPQC");
+                cmcePrivateKey = (CMCEKey) keyFactCmce.generatePrivate(new PKCS8EncodedKeySpec(privateKeyClassicMcEliece.getEncoded()));
+                cmcePublicKey = (CMCEKey) keyFactCmce.generatePublic(new X509EncodedKeySpec(publicKeyClassicMcEliece.getEncoded()));
+            } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidKeySpecException e) {
+                e.printStackTrace();
+            }
+
             // generate the encryption key and the encapsulated key
             printlnX("\nEncryption side: generate the encryption key and the encapsulated key");
-            SecretKeyWithEncapsulation secretKeyWithEncapsulationSender = pqcGenerateClassicMcElieceEncryptionKey348864(publicKeyClassicMcEliece);
+            //SecretKeyWithEncapsulation secretKeyWithEncapsulationSender = pqcGenerateClassicMcElieceEncryptionKey348864(publicKeyClassicMcEliece);
+            SecretKeyWithEncapsulation secretKeyWithEncapsulationSender = pqcGenerateClassicMcElieceEncryptionKey348864(cmcePublicKey);
             byte[] encyptionKey = secretKeyWithEncapsulationSender.getEncoded();
             printlnX("encryption key length: " + encyptionKey.length
                     + " key: " + bytesToHex(secretKeyWithEncapsulationSender.getEncoded()));
@@ -231,7 +288,8 @@ public class MainActivity extends AppCompatActivity {
             printlnX("encapsulated key length: " + encapsulatedKey.length + " key: " + bytesToHex(encapsulatedKey));
 
             printlnX("\nDecryption side: receive the encapsulated key and generate the decryption key");
-            byte[] decryptionKey = pqcGenerateClassicMcElieceDecryptionKey(privateKeyClassicMcEliece, encapsulatedKey);
+            //byte[] decryptionKey = pqcGenerateClassicMcElieceDecryptionKey(privateKeyClassicMcEliece, encapsulatedKey);
+            byte[] decryptionKey = pqcGenerateClassicMcElieceDecryptionKey(cmcePrivateKey, encapsulatedKey);
             printlnX("decryption key length: " + decryptionKey.length + " key: " + bytesToHex(decryptionKey));
             boolean keysAreEqual = Arrays.areEqual(encyptionKey, decryptionKey);
             printlnX("decryption key is equal to encryption key: " + keysAreEqual);
@@ -247,6 +305,22 @@ public class MainActivity extends AppCompatActivity {
     private static String getBouncyCastlePqcVersion() {
         Provider provider = Security.getProvider("BCPQC");
         return String.valueOf(provider.getVersion());
+    }
+
+    private static boolean validate(byte[] data, byte[] signature, byte[] publicKey) throws Exception {
+        Provider provider = new BouncyCastleProvider();
+        Signature signer = Signature.getInstance("SHA512withECDSA", provider);
+
+        //PublicKey pb = KeyFactory.getInstance("ECDSA", provider).generatePublic(new X509EncodedKeySpec(publicKey));
+        //System.out.println("*** pb: " + pb.getAlgorithm() + " Format: " + pb.getFormat());
+
+        KeyFactory keyFactory = KeyFactory.getInstance("EC");
+        X509EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(publicKey);
+        PublicKey pb = keyFactory.generatePublic(publicKeySpec);
+
+        signer.initVerify(pb);
+        signer.update(data);
+        return signer.verify(signature);
     }
 
     public static AsymmetricCipherKeyPair pqcGenerateSphincsKeyPairSha3() {
@@ -287,10 +361,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public static byte[] pqcSphincsPlusSignature(PrivateKey privateKey, byte[] messageByte) {
+    //public static byte[] pqcSphincsPlusSignature(PrivateKey privateKey, byte[] messageByte) {
+    public static byte[] pqcSphincsPlusSignature(SPHINCSPlusKey privateKey, byte[] messageByte) {
         try {
             Signature sig = Signature.getInstance("SPHINCSPlus", "BCPQC");
-            sig.initSign(privateKey, new SecureRandom());
+            sig.initSign((PrivateKey) privateKey, new SecureRandom());
             sig.update(messageByte, 0, messageByte.length);
             byte[] signature = sig.sign();
             return signature;
@@ -300,10 +375,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public static Boolean pqcSphincsPlusVerification(PublicKey publicKey, byte[] messageByte, byte[] signatureByte) {
+    //public static Boolean pqcSphincsPlusVerification(PublicKey publicKey, byte[] messageByte, byte[] signatureByte) {
+    public static Boolean pqcSphincsPlusVerification(SPHINCSPlusKey publicKey, byte[] messageByte, byte[] signatureByte) {
         try {
             Signature sig = Signature.getInstance("SPHINCSPlus", "BCPQC");
-            sig.initVerify(publicKey);
+            sig.initVerify((PublicKey) publicKey);
             sig.update(messageByte, 0, messageByte.length);
             boolean result = sig.verify(signatureByte);
             return result;
@@ -330,14 +406,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //public static byte[][] pqcGenerateClassicMcElieceEncryptionKey348864(PublicKey publicKey) {
-    public static SecretKeyWithEncapsulation pqcGenerateClassicMcElieceEncryptionKey348864(PublicKey publicKey) {
+    public static SecretKeyWithEncapsulation pqcGenerateClassicMcElieceEncryptionKey348864(CMCEKey publicKey) {
+        //public static SecretKeyWithEncapsulation pqcGenerateClassicMcElieceEncryptionKey348864(PublicKey publicKey) {
         // output: [0] = key encapsulation
         // output: [1] = encoded key
         KeyGenerator keyGen = null;
         //byte[][] output = new byte[2][];
         try {
             keyGen = KeyGenerator.getInstance("CMCE", "BCPQC");
-            keyGen.init(new KEMGenerateSpec(publicKey, "AES"), new SecureRandom());
+            keyGen.init(new KEMGenerateSpec((PublicKey) publicKey, "AES"), new SecureRandom());
             SecretKeyWithEncapsulation secEnc1 = (SecretKeyWithEncapsulation) keyGen.generateKey();
             return secEnc1;
         } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidAlgorithmParameterException e) {
@@ -346,11 +423,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public static byte[] pqcGenerateClassicMcElieceDecryptionKey(PrivateKey privateKey, byte[] encapsulatedKey) {
+    public static byte[] pqcGenerateClassicMcElieceDecryptionKey(CMCEKey privateKey, byte[] encapsulatedKey) {
+    //public static byte[] pqcGenerateClassicMcElieceDecryptionKey(PrivateKey privateKey, byte[] encapsulatedKey) {
         KeyGenerator keyGen = null;
         try {
             keyGen = KeyGenerator.getInstance("CMCE", "BCPQC");
-            keyGen.init(new KEMExtractSpec(privateKey, encapsulatedKey, "AES"), new SecureRandom());
+            keyGen.init(new KEMExtractSpec((PrivateKey) privateKey, encapsulatedKey, "AES"), new SecureRandom());
             SecretKeyWithEncapsulation secEnc2 = (SecretKeyWithEncapsulation) keyGen.generateKey();
             return secEnc2.getEncoded();
         } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidAlgorithmParameterException e) {
