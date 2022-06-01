@@ -35,6 +35,7 @@ implementation group: 'org.bouncycastle', name: 'bcprov-jdk18on', version: '1.71
 // https://mvnrepository.com/artifact/org.bouncycastle/bcpkix-jdk18on
 implementation group: 'org.bouncycastle', name: 'bcpkix-jdk18on', version: '1.71'
 ```
+Bouncy Castle Release notes: https://www.bouncycastle.org/latest_releases.html
 
 Bouncy Castle Provider for PQC: https://github.com/bcgit/bc-java/tree/master/prov/src/main/java/org/bouncycastle/pqc/jcajce/provider
 

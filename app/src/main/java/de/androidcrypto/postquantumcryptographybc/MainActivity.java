@@ -11,7 +11,6 @@ import android.widget.TextView;
 
 /* ##### place your imports here ##### */
 
-import org.bouncycastle.asn1.bc.BCObjectIdentifiers;
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
 import org.bouncycastle.crypto.digests.SHA3Digest;
 import org.bouncycastle.jcajce.SecretKeyWithEncapsulation;
@@ -28,13 +27,9 @@ import org.bouncycastle.pqc.jcajce.interfaces.CMCEKey;
 import org.bouncycastle.pqc.jcajce.provider.BouncyCastlePQCProvider;
 
 import org.bouncycastle.pqc.jcajce.interfaces.SPHINCSPlusKey;
-import org.bouncycastle.pqc.jcajce.provider.cmce.BCCMCEPrivateKey;
 import org.bouncycastle.pqc.jcajce.spec.CMCEParameterSpec;
 import org.bouncycastle.pqc.jcajce.spec.SPHINCSPlusParameterSpec;
-import org.bouncycastle.util.Arrays;
-import org.bouncycastle.util.encoders.Hex;
 
-import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
@@ -50,7 +45,6 @@ import java.security.Security;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
-import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -135,6 +129,12 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             PqcRainbowSignature.main(null);
+        } catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException | NoSuchProviderException | InvalidKeySpecException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            PqcSphincsPlusSignature.main(null);
         } catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException | NoSuchProviderException | InvalidKeySpecException e) {
             e.printStackTrace();
         }

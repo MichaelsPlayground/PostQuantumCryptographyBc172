@@ -23,9 +23,12 @@ import org.bouncycastle.pqc.crypto.sphincs.SPHINCSPublicKeyParameters;
 import org.bouncycastle.pqc.jcajce.interfaces.CMCEKey;
 import org.bouncycastle.pqc.jcajce.interfaces.SPHINCSPlusKey;
 import org.bouncycastle.pqc.jcajce.provider.BouncyCastlePQCProvider;
+import org.bouncycastle.pqc.jcajce.provider.cmce.BCCMCEPrivateKey;
 import org.bouncycastle.pqc.jcajce.spec.CMCEParameterSpec;
 import org.bouncycastle.pqc.jcajce.spec.SPHINCSPlusParameterSpec;
+import org.bouncycastle.util.Arrays;
 
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
@@ -40,6 +43,8 @@ import java.security.SecureRandom;
 import java.security.Security;
 import java.security.Signature;
 import java.security.SignatureException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -148,7 +153,6 @@ public class MainActivityOrg extends AppCompatActivity {
         }
         */
 
-        /*
         printlnX("");
         printlnX("*** SPHINX signature with BC start ***");
 
@@ -270,7 +274,7 @@ public class MainActivityOrg extends AppCompatActivity {
             } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidKeySpecException e) {
                 e.printStackTrace();
             }
-*/
+
             //CMCEKey cmcePrivateKey = null;
             //CMCEKey cmcePublicKey = null;
             /*
@@ -283,7 +287,7 @@ public class MainActivityOrg extends AppCompatActivity {
             }
 
              */
-/*
+
             // generate the encryption key and the encapsulated key
             printlnX("\nEncryption side: generate the encryption key and the encapsulated key");
             //SecretKeyWithEncapsulation secretKeyWithEncapsulationSender = pqcGenerateClassicMcElieceEncryptionKey348864(publicKeyClassicMcEliece);
@@ -305,7 +309,6 @@ public class MainActivityOrg extends AppCompatActivity {
         }
         printlnX("\n*** Classic McEliece KEM with BC end ***");
 
- */
     }
 
     private static String getBouncyCastleVersion() {
