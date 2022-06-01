@@ -28,6 +28,7 @@ import org.bouncycastle.pqc.jcajce.interfaces.CMCEKey;
 import org.bouncycastle.pqc.jcajce.provider.BouncyCastlePQCProvider;
 
 import org.bouncycastle.pqc.jcajce.interfaces.SPHINCSPlusKey;
+import org.bouncycastle.pqc.jcajce.provider.cmce.BCCMCEPrivateKey;
 import org.bouncycastle.pqc.jcajce.spec.CMCEParameterSpec;
 import org.bouncycastle.pqc.jcajce.spec.SPHINCSPlusParameterSpec;
 import org.bouncycastle.util.Arrays;
@@ -254,6 +255,9 @@ public class MainActivity extends AppCompatActivity {
             printlnX("\nClassic McEliece with parameter " + cmceParameterSpec.getName());
             KeyPair keyPairClassicMcEliece = pqcGenerateClassicMcElieceKeyPair(cmceParameterSpec);
 
+            BCCMCEPrivateKey bccmcePrivateKey = (BCCMCEPrivateKey) keyPairClassicMcEliece.getPrivate();
+            //bccmcePrivateKey.getParameterSpec().getName()
+
             // get private and public key
             PrivateKey privateKeyClassicMcEliece = keyPairClassicMcEliece.getPrivate();
             PublicKey publicKeyClassicMcEliece = keyPairClassicMcEliece.getPublic();
@@ -267,8 +271,19 @@ public class MainActivity extends AppCompatActivity {
 
             // generate the keys from a byte array
             KeyFactory keyFactCmce = null;
-            CMCEKey cmcePrivateKey = null;
-            CMCEKey cmcePublicKey = null;
+            PrivateKey cmcePrivateKey = null;
+            PublicKey cmcePublicKey = null;
+            try {
+                keyFactCmce = KeyFactory.getInstance("CMCE", "BCPQC");
+                cmcePrivateKey = keyFactCmce.generatePrivate(new PKCS8EncodedKeySpec(privateKeyClassicMcEliece.getEncoded()));
+                cmcePublicKey = keyFactCmce.generatePublic(new X509EncodedKeySpec(publicKeyClassicMcEliece.getEncoded()));
+            } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidKeySpecException e) {
+                e.printStackTrace();
+            }
+
+            //CMCEKey cmcePrivateKey = null;
+            //CMCEKey cmcePublicKey = null;
+            /*
             try {
                 keyFactCmce = KeyFactory.getInstance("CMCE", "BCPQC");
                 cmcePrivateKey = (CMCEKey) keyFactCmce.generatePrivate(new PKCS8EncodedKeySpec(privateKeyClassicMcEliece.getEncoded()));
@@ -277,10 +292,13 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
 
+             */
+
             // generate the encryption key and the encapsulated key
             printlnX("\nEncryption side: generate the encryption key and the encapsulated key");
             //SecretKeyWithEncapsulation secretKeyWithEncapsulationSender = pqcGenerateClassicMcElieceEncryptionKey348864(publicKeyClassicMcEliece);
-            SecretKeyWithEncapsulation secretKeyWithEncapsulationSender = pqcGenerateClassicMcElieceEncryptionKey348864(cmcePublicKey);
+            //SecretKeyWithEncapsulation secretKeyWithEncapsulationSender = pqcGenerateClassicMcElieceEncryptionKey348864(cmcePublicKey);
+            SecretKeyWithEncapsulation secretKeyWithEncapsulationSender = pqcGenerateClassicMcElieceEncryptionKey(cmcePublicKey);
             byte[] encyptionKey = secretKeyWithEncapsulationSender.getEncoded();
             printlnX("encryption key length: " + encyptionKey.length
                     + " key: " + bytesToHex(secretKeyWithEncapsulationSender.getEncoded()));
@@ -289,7 +307,8 @@ public class MainActivity extends AppCompatActivity {
 
             printlnX("\nDecryption side: receive the encapsulated key and generate the decryption key");
             //byte[] decryptionKey = pqcGenerateClassicMcElieceDecryptionKey(privateKeyClassicMcEliece, encapsulatedKey);
-            byte[] decryptionKey = pqcGenerateClassicMcElieceDecryptionKey(cmcePrivateKey, encapsulatedKey);
+            //byte[] decryptionKey = pqcGenerateClassicMcElieceDecryptionKey(cmcePrivateKey, encapsulatedKey);
+            byte[] decryptionKey = pqcGenerateClassicMcElieceDecryptionKey2(cmcePrivateKey, encapsulatedKey);
             printlnX("decryption key length: " + decryptionKey.length + " key: " + bytesToHex(decryptionKey));
             boolean keysAreEqual = Arrays.areEqual(encyptionKey, decryptionKey);
             printlnX("decryption key is equal to encryption key: " + keysAreEqual);
@@ -417,6 +436,36 @@ public class MainActivity extends AppCompatActivity {
             keyGen.init(new KEMGenerateSpec((PublicKey) publicKey, "AES"), new SecureRandom());
             SecretKeyWithEncapsulation secEnc1 = (SecretKeyWithEncapsulation) keyGen.generateKey();
             return secEnc1;
+        } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidAlgorithmParameterException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static SecretKeyWithEncapsulation pqcGenerateClassicMcElieceEncryptionKey(PublicKey publicKey) {
+        // output: [0] = key encapsulation
+        // output: [1] = encoded key
+        KeyGenerator keyGen = null;
+        //byte[][] output = new byte[2][];
+        try {
+            keyGen = KeyGenerator.getInstance("CMCE", "BCPQC");
+            keyGen.init(new KEMGenerateSpec((PublicKey) publicKey, "AES"), new SecureRandom());
+            SecretKeyWithEncapsulation secEnc1 = (SecretKeyWithEncapsulation) keyGen.generateKey();
+            return secEnc1;
+        } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidAlgorithmParameterException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static byte[] pqcGenerateClassicMcElieceDecryptionKey2(PrivateKey privateKey, byte[] encapsulatedKey) {
+        //public static byte[] pqcGenerateClassicMcElieceDecryptionKey(PrivateKey privateKey, byte[] encapsulatedKey) {
+        KeyGenerator keyGen = null;
+        try {
+            keyGen = KeyGenerator.getInstance("CMCE", "BCPQC");
+            keyGen.init(new KEMExtractSpec((PrivateKey) privateKey, encapsulatedKey, "AES"), new SecureRandom());
+            SecretKeyWithEncapsulation secEnc2 = (SecretKeyWithEncapsulation) keyGen.generateKey();
+            return secEnc2.getEncoded();
         } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidAlgorithmParameterException e) {
             e.printStackTrace();
             return null;
