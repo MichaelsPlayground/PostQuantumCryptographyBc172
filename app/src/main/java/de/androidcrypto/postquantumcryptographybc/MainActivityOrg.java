@@ -1,17 +1,13 @@
 package de.androidcrypto.postquantumcryptographybc;
 
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.os.Bundle;
-
 import android.os.Build;
+import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-/* ##### place your imports here ##### */
+import androidx.appcompat.app.AppCompatActivity;
 
-import org.bouncycastle.asn1.bc.BCObjectIdentifiers;
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
 import org.bouncycastle.crypto.digests.SHA3Digest;
 import org.bouncycastle.jcajce.SecretKeyWithEncapsulation;
@@ -25,16 +21,11 @@ import org.bouncycastle.pqc.crypto.sphincs.SPHINCS256Signer;
 import org.bouncycastle.pqc.crypto.sphincs.SPHINCSPrivateKeyParameters;
 import org.bouncycastle.pqc.crypto.sphincs.SPHINCSPublicKeyParameters;
 import org.bouncycastle.pqc.jcajce.interfaces.CMCEKey;
-import org.bouncycastle.pqc.jcajce.provider.BouncyCastlePQCProvider;
-
 import org.bouncycastle.pqc.jcajce.interfaces.SPHINCSPlusKey;
-import org.bouncycastle.pqc.jcajce.provider.cmce.BCCMCEPrivateKey;
+import org.bouncycastle.pqc.jcajce.provider.BouncyCastlePQCProvider;
 import org.bouncycastle.pqc.jcajce.spec.CMCEParameterSpec;
 import org.bouncycastle.pqc.jcajce.spec.SPHINCSPlusParameterSpec;
-import org.bouncycastle.util.Arrays;
-import org.bouncycastle.util.encoders.Hex;
 
-import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
@@ -49,8 +40,6 @@ import java.security.SecureRandom;
 import java.security.Security;
 import java.security.Signature;
 import java.security.SignatureException;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -62,7 +51,7 @@ import javax.crypto.KeyGenerator;
 
 /* ##### place your imports here ##### */
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivityOrg extends AppCompatActivity {
 
     String consoleText = "";
     String APPTITLE = "change the application title here";
@@ -98,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
         consoleText = "";
         TextView textViewConsole = (TextView) findViewById(R.id.textviewConsole);
         textViewConsole.setText(consoleText);
-        MainActivity.this.setTitle(APPTITLE);
+        MainActivityOrg.this.setTitle(APPTITLE);
     }
 
     public void printlnX(String print) {
@@ -132,12 +121,6 @@ public class MainActivity extends AppCompatActivity {
         printlnX("Android version: " + getAndroidVersion());
         printlnX("BouncyCastle version: " + getBouncyCastleVersion());
         printlnX("BouncyCastle PQC version: " + getBouncyCastlePqcVersion());
-
-        try {
-            PqcRainbowSignature.main(null);
-        } catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException | NoSuchProviderException | InvalidKeySpecException e) {
-            e.printStackTrace();
-        }
 
         /*
         // Bouncy Castle issue 1169 error decoding signature bytes (SHA512withECDSA) while verifying
@@ -504,7 +487,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static String getTimestampFormatted() {
         // java.time is available from SDK 26+
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             DateTimeFormatter dtf = null;
             dtf = DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm:ss");
             LocalDateTime now = LocalDateTime.now();
