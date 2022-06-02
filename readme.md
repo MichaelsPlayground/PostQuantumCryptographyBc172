@@ -2,7 +2,7 @@
 
 This version uses a Beta version of Bouncy Castle (1.72 Beta 02) to use the PQC Picnic Signature algorithm
 
-https://downloads.bouncycastle.org/betas/bcprov-ext-jdk18on-172b02.jar
+https://downloads.bouncycastle.org/betas/bcprov-ext-jdk18on-172b02.jar 
 
 Official NIST homepage: https://csrc.nist.gov/Projects/post-quantum-cryptography
 
