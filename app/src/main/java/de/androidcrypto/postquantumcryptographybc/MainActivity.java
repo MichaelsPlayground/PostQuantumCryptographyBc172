@@ -128,6 +128,19 @@ public class MainActivity extends AppCompatActivity {
         printlnX("BouncyCastle PQC version: " + getBouncyCastlePqcVersion());
 
         try {
+            PqcFrodoKem.main(null);
+        } catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException | NoSuchProviderException | InvalidKeySpecException e) {
+            e.printStackTrace();
+        }
+
+/*
+        try {
+            PqcPicnicSignature.main(null);
+        } catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException | NoSuchProviderException | InvalidKeySpecException e) {
+            e.printStackTrace();
+        }
+
+        try {
             PqcRainbowSignature.main(null);
         } catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException | NoSuchProviderException | InvalidKeySpecException e) {
             e.printStackTrace();
@@ -138,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
         } catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException | NoSuchProviderException | InvalidKeySpecException e) {
             e.printStackTrace();
         }
-
+*/
         /*
         // Bouncy Castle issue 1169 error decoding signature bytes (SHA512withECDSA) while verifying
         // https://github.com/bcgit/bc-java/issues/1169

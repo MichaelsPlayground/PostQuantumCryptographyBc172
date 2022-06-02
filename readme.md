@@ -61,6 +61,10 @@ algorithms we will migrate to in the future does not look like it's going to cha
 a bit later!
 ```
 
+This version uses a Beta version of Bouncy Castle (1.72 Beta 02) to use the PQC Picnic Signature algorithm 
+
+https://downloads.bouncycastle.org/betas/bcprov-ext-jdk18on-172b02.jar
+
 
 https://classic.mceliece.org/nist/mceliece-20201010.pdf
 KEM: Classic McElice
