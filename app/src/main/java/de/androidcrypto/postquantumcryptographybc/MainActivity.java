@@ -127,11 +127,14 @@ public class MainActivity extends AppCompatActivity {
         printlnX("BouncyCastle version: " + getBouncyCastleVersion());
         printlnX("BouncyCastle PQC version: " + getBouncyCastlePqcVersion());
 
+        /*
         try {
             PqcSaberKem.main(null);
         } catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException | NoSuchProviderException | InvalidKeySpecException e) {
             e.printStackTrace();
         }
+
+         */
 
         /*
         try {
@@ -146,13 +149,10 @@ public class MainActivity extends AppCompatActivity {
         } catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException | NoSuchProviderException | InvalidKeySpecException e) {
             e.printStackTrace();
         }
+*/
+        PqcRainbowSignature.main(null);
 
-        try {
-            PqcRainbowSignature.main(null);
-        } catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException | NoSuchProviderException | InvalidKeySpecException e) {
-            e.printStackTrace();
-        }
-
+/*
         try {
             PqcSphincsPlusSignature.main(null);
         } catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException | NoSuchProviderException | InvalidKeySpecException e) {
