@@ -1,5 +1,9 @@
 # Post Quantum Cryptography wwith Bouncy Castle
 
+This version uses a Beta version of Bouncy Castle (1.72 Beta 02) to use the PQC Picnic Signature algorithm
+
+https://downloads.bouncycastle.org/betas/bcprov-ext-jdk18on-172b02.jar
+
 Official NIST homepage: https://csrc.nist.gov/Projects/post-quantum-cryptography
 
 Round 3 candidates: 
@@ -60,11 +64,6 @@ maybe – NIST are having a bit more of a think. One thing seems clear: the "sha
 algorithms we will migrate to in the future does not look like it's going to change. More on this one 
 a bit later!
 ```
-
-This version uses a Beta version of Bouncy Castle (1.72 Beta 02) to use the PQC Picnic Signature algorithm 
-
-https://downloads.bouncycastle.org/betas/bcprov-ext-jdk18on-172b02.jar
-
 
 https://classic.mceliece.org/nist/mceliece-20201010.pdf
 KEM: Classic McElice
