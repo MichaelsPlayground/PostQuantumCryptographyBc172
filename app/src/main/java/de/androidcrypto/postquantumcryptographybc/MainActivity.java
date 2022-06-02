@@ -128,10 +128,17 @@ public class MainActivity extends AppCompatActivity {
         printlnX("BouncyCastle PQC version: " + getBouncyCastlePqcVersion());
 
         try {
-            PqcFrodoKem.main(null);
+            PqcSaberKem.main(null);
         } catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException | NoSuchProviderException | InvalidKeySpecException e) {
             e.printStackTrace();
         }
+
+        /*
+        try {
+            PqcFrodoKem.main(null);
+        } catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException | NoSuchProviderException | InvalidKeySpecException e) {
+            e.printStackTrace();
+        }*/
 
 /*
         try {
