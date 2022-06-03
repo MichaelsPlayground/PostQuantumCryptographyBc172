@@ -3,15 +3,11 @@ package de.androidcrypto.postquantumcryptographybc;
 import org.bouncycastle.jcajce.SecretKeyWithEncapsulation;
 import org.bouncycastle.jcajce.spec.KEMExtractSpec;
 import org.bouncycastle.jcajce.spec.KEMGenerateSpec;
-import org.bouncycastle.pqc.jcajce.interfaces.SPHINCSPlusKey;
 import org.bouncycastle.pqc.jcajce.provider.BouncyCastlePQCProvider;
 import org.bouncycastle.pqc.jcajce.spec.FrodoParameterSpec;
-import org.bouncycastle.pqc.jcajce.spec.PicnicParameterSpec;
 import org.bouncycastle.util.Arrays;
 
-import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -21,8 +17,6 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.Security;
-import java.security.Signature;
-import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
@@ -32,7 +26,7 @@ import javax.crypto.KeyGenerator;
 public class PqcFrodoKem {
 
 
-    public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException, NoSuchProviderException, InvalidKeySpecException {
+    public static void main(String[] args) {
         //Security.addProvider(new BouncyCastleProvider());
         // we do need the regular Bouncy Castle file that includes the PQC provider
         // get Bouncy Castle here: https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15on
@@ -76,7 +70,7 @@ public class PqcFrodoKem {
         boolean[] encryptionKeysEquals = new boolean[nrOfSpecs];
 
         for (int i = 0; i < nrOfSpecs; i++) {
-            // generation of the Picnic key pair
+            // generation of the Frodo key pair
             FrodoParameterSpec frodoParameterSpec = frodoParameterSpecs[i];
             String frodoParameterSpecName = frodoParameterSpec.getName();
             parameterSpecName[i] = frodoParameterSpecName;
@@ -96,8 +90,8 @@ public class PqcFrodoKem {
             publicKeyLength[i] = publicKeyByte.length;
 
             // generate the keys from a byte array
-            PrivateKey privateKeyLoad = getPicnicPrivateKeyFromEncoded(privateKeyByte);
-            PublicKey publicKeyLoad = getPicnicPublicKeyFromEncoded(publicKeyByte);
+            PrivateKey privateKeyLoad = getFrodoPrivateKeyFromEncoded(privateKeyByte);
+            PublicKey publicKeyLoad = getFrodoPublicKeyFromEncoded(publicKeyByte);
 
             // generate the encryption key and the encapsulated key
             System.out.println("\nEncryption side: generate the encryption key and the encapsulated key");
@@ -164,18 +158,28 @@ public class PqcFrodoKem {
         }
     }
 
-    private static PrivateKey getPicnicPrivateKeyFromEncoded(byte[] encodedKey)
-            throws NoSuchProviderException, NoSuchAlgorithmException, InvalidKeySpecException {
+    private static PrivateKey getFrodoPrivateKeyFromEncoded(byte[] encodedKey) {
         PKCS8EncodedKeySpec pkcs8EncodedKeySpec = new PKCS8EncodedKeySpec(encodedKey);
-        KeyFactory keyFactory = KeyFactory.getInstance("Frodo", "BCPQC");
-        return keyFactory.generatePrivate(pkcs8EncodedKeySpec);
+        KeyFactory keyFactory = null;
+        try {
+            keyFactory = KeyFactory.getInstance("Frodo", "BCPQC");
+            return keyFactory.generatePrivate(pkcs8EncodedKeySpec);
+        } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidKeySpecException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
-    private static PublicKey getPicnicPublicKeyFromEncoded(byte[] encodedKey)
-            throws NoSuchProviderException, NoSuchAlgorithmException, InvalidKeySpecException {
+    private static PublicKey getFrodoPublicKeyFromEncoded(byte[] encodedKey) {
         X509EncodedKeySpec x509EncodedKeySpec = new X509EncodedKeySpec(encodedKey);
-        KeyFactory keyFactory = KeyFactory.getInstance("Frodo", "BCPQC");
-        return keyFactory.generatePublic(x509EncodedKeySpec);
+        KeyFactory keyFactory = null;
+        try {
+            keyFactory = KeyFactory.getInstance("Frodo", "BCPQC");
+            return keyFactory.generatePublic(x509EncodedKeySpec);
+        } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidKeySpecException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     private static String bytesToHex(byte[] bytes) {

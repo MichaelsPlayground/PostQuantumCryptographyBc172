@@ -4,6 +4,7 @@ import org.bouncycastle.pqc.jcajce.interfaces.SPHINCSPlusKey;
 import org.bouncycastle.pqc.jcajce.provider.BouncyCastlePQCProvider;
 import org.bouncycastle.pqc.jcajce.provider.rainbow.BCRainbowPrivateKey;
 import org.bouncycastle.pqc.jcajce.provider.rainbow.BCRainbowPublicKey;
+import org.bouncycastle.pqc.jcajce.spec.PicnicParameterSpec;
 import org.bouncycastle.pqc.jcajce.spec.SPHINCSPlusParameterSpec;
 
 import java.nio.charset.StandardCharsets;
@@ -27,7 +28,7 @@ import java.security.spec.X509EncodedKeySpec;
 public class PqcSphincsPlusSignature {
 
 
-    public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException, NoSuchProviderException, InvalidKeySpecException {
+    public static void main(String[] args) {
         //Security.addProvider(new BouncyCastleProvider());
         // we do need the regular Bouncy Castle file that includes the PQC provider
         // get Bouncy Castle here: https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15on
@@ -54,38 +55,90 @@ public class PqcSphincsPlusSignature {
         String dataToSignString = "The quick brown fox jumps over the lazy dog";
         byte[] dataToSign = dataToSignString.getBytes(StandardCharsets.UTF_8);
 
-        // generation of the SphincsPlus key pair
-        SPHINCSPlusParameterSpec sphincsPlusParameterSpec = SPHINCSPlusParameterSpec.shake256_256s;
-        KeyPair keyPair = generateSphincsPlusKeyPair(sphincsPlusParameterSpec);
+        // as there are 24 parameter sets available the program runs all of them
+        SPHINCSPlusParameterSpec[] sphincsPlusParameterSpecs = {
+                SPHINCSPlusParameterSpec.sha256_128f,
+                SPHINCSPlusParameterSpec.sha256_128s,
+                SPHINCSPlusParameterSpec.sha256_192f,
+                SPHINCSPlusParameterSpec.sha256_192s,
+                SPHINCSPlusParameterSpec.sha256_256f,
+                SPHINCSPlusParameterSpec.sha256_256s,
+                SPHINCSPlusParameterSpec.sha256_128f_simple,
+                SPHINCSPlusParameterSpec.sha256_128s_simple,
+                SPHINCSPlusParameterSpec.sha256_192f_simple,
+                SPHINCSPlusParameterSpec.sha256_192s_simple,
+                SPHINCSPlusParameterSpec.sha256_256f_simple,
+                SPHINCSPlusParameterSpec.sha256_256s_simple,
+                SPHINCSPlusParameterSpec.shake256_128f,
+                SPHINCSPlusParameterSpec.shake256_128s,
+                SPHINCSPlusParameterSpec.shake256_192f,
+                SPHINCSPlusParameterSpec.shake256_192s,
+                SPHINCSPlusParameterSpec.shake256_256f,
+                SPHINCSPlusParameterSpec.shake256_256s,
+                SPHINCSPlusParameterSpec.shake256_128f_simple,
+                SPHINCSPlusParameterSpec.shake256_128s_simple,
+                SPHINCSPlusParameterSpec.shake256_192f_simple,
+                SPHINCSPlusParameterSpec.shake256_192s_simple,
+                SPHINCSPlusParameterSpec.shake256_256f_simple,
+                SPHINCSPlusParameterSpec.shake256_256s_simple
+        };
 
-        // get private and public key
-        PrivateKey privateKeySphincsPlus = keyPair.getPrivate();
-        PublicKey publicKeySphincsPlus = keyPair.getPublic();
+        // statistics
+        int nrOfSpecs = sphincsPlusParameterSpecs.length;
+        String[] parameterSpecName = new String[nrOfSpecs];
+        int[] privateKeyLength = new int[nrOfSpecs];
+        int[] publicKeyLength = new int[nrOfSpecs];
+        int[] signatureLength = new int[nrOfSpecs];
+        boolean[] signaturesVerified = new boolean[nrOfSpecs];
 
-        // storing the key as byte array
-        byte[] privateKeySphincsPlusByte = privateKeySphincsPlus.getEncoded();
-        byte[] publicKeySphincsPlusByte = publicKeySphincsPlus.getEncoded();
-        System.out.println("\ngenerated private key length: " + privateKeySphincsPlusByte.length);
-        System.out.println("generated public key length:  " + publicKeySphincsPlusByte.length);
+        for (int i = 0; i < nrOfSpecs; i++) {
+            // generation of the Sphincs Plus key pair
+            SPHINCSPlusParameterSpec sphincsPlusParameterSpec = sphincsPlusParameterSpecs[i];
+            String sphincsPlusParameterSpecName = sphincsPlusParameterSpec.getName();
+            parameterSpecName[i] = sphincsPlusParameterSpecName;
+            System.out.println("\nSphincs Plus signature with parameterset " + sphincsPlusParameterSpecName);
+            // generation of the SphincsPlus key pair
+            KeyPair keyPair = generateSphincsPlusKeyPair(sphincsPlusParameterSpec);
 
-        // generate the keys from a byte array
-        PrivateKey privateKeySphincsPlusLoad = getSphincsPlusPrivateKeyFromEncoded(privateKeySphincsPlusByte);
-        PublicKey publicKeySphincsPlusLoad = getSphincsPlusPublicKeyFromEncoded(publicKeySphincsPlusByte);
+            // get private and public key
+            PrivateKey privateKeySphincsPlus = keyPair.getPrivate();
+            PublicKey publicKeySphincsPlus = keyPair.getPublic();
 
-        System.out.println("\n* * * sign the dataToSign with the private key * * *");
-        byte[] signature = pqcSphincsPlusSignature(privateKeySphincsPlusLoad, dataToSign);
-        System.out.println("signature length: " + signature.length + " data:\n"  + bytesToHex(signature));
+            // storing the key as byte array
+            byte[] privateKeySphincsPlusByte = privateKeySphincsPlus.getEncoded();
+            byte[] publicKeySphincsPlusByte = publicKeySphincsPlus.getEncoded();
+            System.out.println("\ngenerated private key length: " + privateKeySphincsPlusByte.length);
+            System.out.println("generated public key length:  " + publicKeySphincsPlusByte.length);
+            privateKeyLength[i] = privateKeySphincsPlusByte.length;
+            publicKeyLength[i] = publicKeySphincsPlusByte.length;
 
-        System.out.println("\n* * * verify the signature with the public key * * *");
-        boolean signatureVerified = pqcSphincsPlusVerification(publicKeySphincsPlusLoad, dataToSign, signature);
-        System.out.println("the signature is verified: " + signatureVerified);
+            // generate the keys from a byte array
+            PrivateKey privateKeySphincsPlusLoad = getSphincsPlusPrivateKeyFromEncoded(privateKeySphincsPlusByte);
+            PublicKey publicKeySphincsPlusLoad = getSphincsPlusPublicKeyFromEncoded(publicKeySphincsPlusByte);
+
+            System.out.println("\n* * * sign the dataToSign with the private key * * *");
+            byte[] signature = pqcSphincsPlusSignature(privateKeySphincsPlusLoad, dataToSign);
+            System.out.println("signature length: " + signature.length + " data:\n" + bytesToHex(signature));
+            signatureLength[i] = signature.length;
+
+            System.out.println("\n* * * verify the signature with the public key * * *");
+            boolean signatureVerified = pqcSphincsPlusVerification(publicKeySphincsPlusLoad, dataToSign, signature);
+            System.out.println("the signature is verified: " + signatureVerified);
+            signaturesVerified[i] = signatureVerified;
+        }
+
+        System.out.println("\nTest results");
+        System.out.println("parameter spec name  priKL   pubKL    sigL  sigV");
+        for (int i = 0; i < nrOfSpecs; i++) {
+            System.out.format("%-20s%6d%8d%8d%6b%n", parameterSpecName[i], privateKeyLength[i], publicKeyLength[i], signatureLength[i], signaturesVerified[i]);
+        }
+        System.out.println("Legend: priKL privateKey length, pubKL publicKey length, sigL signature length, sigV signature verified\n");
     }
 
     private static KeyPair generateSphincsPlusKeyPair(SPHINCSPlusParameterSpec sphincsPlusParameterSpec) {
         try {
             KeyPairGenerator kpg = KeyPairGenerator.getInstance("SPHINCSPlus", "BCPQC");
-            //kpg.initialize(SPHINCSPlusParameterSpec.sha256_128f, new SecureRandom());
-            kpg.initialize(SPHINCSPlusParameterSpec.shake256_256f, new SecureRandom());
+            kpg.initialize(sphincsPlusParameterSpec, new SecureRandom());
             KeyPair kp = kpg.generateKeyPair();
             return kp;
         } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidAlgorithmParameterException e) {
@@ -123,18 +176,27 @@ public class PqcSphincsPlusSignature {
     }
 
 
-    private static PrivateKey getSphincsPlusPrivateKeyFromEncoded(byte[] encodedKey)
-            throws NoSuchProviderException, NoSuchAlgorithmException, InvalidKeySpecException {
+    private static PrivateKey getSphincsPlusPrivateKeyFromEncoded(byte[] encodedKey) {
         PKCS8EncodedKeySpec pkcs8EncodedKeySpec = new PKCS8EncodedKeySpec(encodedKey);
-        KeyFactory keyFactory = KeyFactory.getInstance("SPHINCSPlus", "BCPQC");
-        return keyFactory.generatePrivate(pkcs8EncodedKeySpec);
+        KeyFactory keyFactory = null;
+        try {
+            keyFactory = KeyFactory.getInstance("SPHINCSPlus", "BCPQC");
+            return keyFactory.generatePrivate(pkcs8EncodedKeySpec);
+        } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidKeySpecException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
-    private static PublicKey getSphincsPlusPublicKeyFromEncoded(byte[] encodedKey)
-            throws NoSuchProviderException, NoSuchAlgorithmException, InvalidKeySpecException {
+    private static PublicKey getSphincsPlusPublicKeyFromEncoded(byte[] encodedKey) {
         X509EncodedKeySpec x509EncodedKeySpec = new X509EncodedKeySpec(encodedKey);
-        KeyFactory keyFactory = KeyFactory.getInstance("SPHINCSPlus", "BCPQC");
-        return keyFactory.generatePublic(x509EncodedKeySpec);
+        try {
+            KeyFactory keyFactory = KeyFactory.getInstance("SPHINCSPlus", "BCPQC");
+            return keyFactory.generatePublic(x509EncodedKeySpec);
+        } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidKeySpecException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     private static byte[] pqcSphincsPlusSignature(PrivateKey privateKey, byte[] dataToSign) {
@@ -142,8 +204,7 @@ public class PqcSphincsPlusSignature {
             Signature sig = Signature.getInstance("SPHINCSPlus", "BCPQC");
             sig.initSign((PrivateKey) privateKey, new SecureRandom());
             sig.update(dataToSign, 0, dataToSign.length);
-            byte[] signature = sig.sign();
-            return signature;
+            return sig.sign();
         } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidKeyException | SignatureException e) {
             e.printStackTrace();
             return null;
@@ -155,8 +216,7 @@ public class PqcSphincsPlusSignature {
             Signature sig = Signature.getInstance("SPHINCSPlus", "BCPQC");
             sig.initVerify((PublicKey) publicKey);
             sig.update(dataToSign, 0, dataToSign.length);
-            boolean result = sig.verify(signature);
-            return result;
+            return sig.verify(signature);
         } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidKeyException | SignatureException e) {
             e.printStackTrace();
             return false;

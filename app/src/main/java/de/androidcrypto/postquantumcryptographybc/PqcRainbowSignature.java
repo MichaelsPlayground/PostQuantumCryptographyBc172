@@ -1,13 +1,22 @@
 package de.androidcrypto.postquantumcryptographybc;
 
-import org.bouncycastle.pqc.asn1.PQCObjectIdentifiers;
 import org.bouncycastle.pqc.jcajce.provider.BouncyCastlePQCProvider;
 import org.bouncycastle.pqc.jcajce.provider.rainbow.BCRainbowPrivateKey;
 import org.bouncycastle.pqc.jcajce.provider.rainbow.BCRainbowPublicKey;
-import org.bouncycastle.pqc.jcajce.spec.PicnicParameterSpec;
 
 import java.nio.charset.StandardCharsets;
-import java.security.*;
+import java.security.InvalidKeyException;
+import java.security.KeyFactory;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.SecureRandom;
+import java.security.Security;
+import java.security.Signature;
+import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
@@ -57,7 +66,7 @@ public class PqcRainbowSignature {
         boolean[] signaturesVerified = new boolean[nrOfSpecs];
 
         for (int i = 0; i < nrOfSpecs; i++) {
-            // generation of the Picnic key pair
+            // generation of the Rainbow key pair
             String signatureSpecName = rainbowSignatureSpecs[i];
             signatureSpecsName[i] = signatureSpecName;
             System.out.println("\nRainbow signature with signature set " + signatureSpecName);
@@ -78,8 +87,8 @@ public class PqcRainbowSignature {
             publicKeyLength[i] = publicKeyRainbowByte.length;;
 
             // generate the keys from a byte array
-            PrivateKey privateKeyRainbowLoad = getBCRainbowPrivateKeyFromEncoded(privateKeyRainbowByte);
-            PublicKey publicKeyRainbowLoad = getBCRainbowPublicKeyFromEncoded(publicKeyRainbowByte);
+            PrivateKey privateKeyRainbowLoad = getRainbowPrivateKeyFromEncoded(privateKeyRainbowByte);
+            PublicKey publicKeyRainbowLoad = getRainbowPublicKeyFromEncoded(publicKeyRainbowByte);
 
             System.out.println("\n* * * sign the dataToSign with the private key * * *");
             byte[] signature = pqcRainbowSignature(privateKeyRainbowLoad, dataToSign, signatureSpecName);
@@ -105,9 +114,32 @@ public class PqcRainbowSignature {
         try {
             kpg = KeyPairGenerator.getInstance("Rainbow");
             kpg.initialize(1024);
-            //kpg.initialize(2048);
             return kpg.genKeyPair();
         } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private static PrivateKey getRainbowPrivateKeyFromEncoded(byte[] encodedKey) {
+        PKCS8EncodedKeySpec pkcs8EncodedKeySpec = new PKCS8EncodedKeySpec(encodedKey);
+        KeyFactory keyFactory = null;
+        try {
+            keyFactory = KeyFactory.getInstance("Rainbow", "BCPQC");
+            return keyFactory.generatePrivate(pkcs8EncodedKeySpec);
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException | NoSuchProviderException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private static PublicKey getRainbowPublicKeyFromEncoded(byte[] encodedKey) {
+        X509EncodedKeySpec x509EncodedKeySpec = new X509EncodedKeySpec(encodedKey);
+        KeyFactory keyFactory = null;
+        try {
+            keyFactory = KeyFactory.getInstance("Rainbow", "BCPQC");
+            return keyFactory.generatePublic(x509EncodedKeySpec);
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException | NoSuchProviderException e) {
             e.printStackTrace();
             return null;
         }

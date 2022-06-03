@@ -4,7 +4,7 @@ import org.bouncycastle.jcajce.SecretKeyWithEncapsulation;
 import org.bouncycastle.jcajce.spec.KEMExtractSpec;
 import org.bouncycastle.jcajce.spec.KEMGenerateSpec;
 import org.bouncycastle.pqc.jcajce.provider.BouncyCastlePQCProvider;
-import org.bouncycastle.pqc.jcajce.spec.SABERParameterSpec;
+import org.bouncycastle.pqc.jcajce.spec.CMCEParameterSpec;
 import org.bouncycastle.util.Arrays;
 
 import java.security.InvalidAlgorithmParameterException;
@@ -23,7 +23,7 @@ import java.security.spec.X509EncodedKeySpec;
 
 import javax.crypto.KeyGenerator;
 
-public class PqcSaberKem {
+public class PqcClassicMcElieceKem {
 
 
     public static void main(String[] args) {
@@ -34,13 +34,13 @@ public class PqcSaberKem {
         if (Security.getProvider("BCPQC") == null) {
             Security.addProvider(new BouncyCastlePQCProvider());
         }
-        System.out.println("PQC SABER kem");
+        System.out.println("PQC Classic McEliece kem");
 
         System.out.println("\n************************************\n" +
                 "* # # SERIOUS SECURITY WARNING # # *\n" +
                 "* This program is a CONCEPT STUDY  *\n" +
-                "* for the algorithm                *\n" +
-                "* SABER [key exchange mechanism]   *\n" +
+                "* for the algorithm Classic Mc     *\n" +
+                "* Eliece [key exchange mechanism]  *\n" +
                 "* The program is using an          *\n" +
                 "* parameter set that I cannot      *\n" +
                 "* check for the correctness of the *\n" +
@@ -50,21 +50,17 @@ public class PqcSaberKem {
                 "*    ANY PRODUCTION ENVIRONMENT    *\n" +
                 "************************************");
 
-        // as there are 9 parameter sets available the program runs all of them
-        SABERParameterSpec[] saberParameterSpecs =  {
-                SABERParameterSpec.lightsaberkem128r3,
-                SABERParameterSpec.saberkem128r3,
-                SABERParameterSpec.firesaberkem128r3,
-                SABERParameterSpec.lightsaberkem192r3,
-                SABERParameterSpec.saberkem192r3,
-                SABERParameterSpec.firesaberkem192r3,
-                SABERParameterSpec.lightsaberkem256r3,
-                SABERParameterSpec.saberkem256r3,
-                SABERParameterSpec.firesaberkem256r3
-        };
+        // as there are 6 parameter sets available the program runs all of them
+        CMCEParameterSpec[] cmceParameterSpecs = {
+                CMCEParameterSpec.mceliece348864,
+                CMCEParameterSpec.mceliece348864f,
+                CMCEParameterSpec.mceliece460896,
+                CMCEParameterSpec.mceliece6688128,
+                CMCEParameterSpec.mceliece6960119,
+                CMCEParameterSpec.mceliece8192128};
 
         // statistics
-        int nrOfSpecs = saberParameterSpecs.length;
+        int nrOfSpecs = cmceParameterSpecs.length;
         String[] parameterSpecName = new String[nrOfSpecs];
         int[] privateKeyLength = new int[nrOfSpecs];
         int[] publicKeyLength = new int[nrOfSpecs];
@@ -73,12 +69,12 @@ public class PqcSaberKem {
         boolean[] encryptionKeysEquals = new boolean[nrOfSpecs];
 
         for (int i = 0; i < nrOfSpecs; i++) {
-            // generation of the SABER key pair
-            SABERParameterSpec saberParameterSpec = saberParameterSpecs[i];
-            String saberParameterSpecName = saberParameterSpec.getName();
-            parameterSpecName[i] = saberParameterSpecName;
-            System.out.println("\nSABER KEM with parameterset " + saberParameterSpecName);
-            KeyPair keyPair = generateSaberKeyPair(saberParameterSpec);
+            // generation of the Classic McEliece key pair
+            CMCEParameterSpec cmceParameterSpec = cmceParameterSpecs[i];
+            String cmceParameterSpecName = cmceParameterSpec.getName();
+            parameterSpecName[i] = cmceParameterSpecName;
+            System.out.println("\nClassic McEliece KEM with parameterset " + cmceParameterSpecName);
+            KeyPair keyPair = generateClassicMcElieceKeyPair(cmceParameterSpec);
 
             // get private and public key
             PrivateKey privateKey = keyPair.getPrivate();
@@ -93,12 +89,12 @@ public class PqcSaberKem {
             publicKeyLength[i] = publicKeyByte.length;
 
             // generate the keys from a byte array
-            PrivateKey privateKeyLoad = getSaberPrivateKeyFromEncoded(privateKeyByte);
-            PublicKey publicKeyLoad = getSaberPublicKeyFromEncoded(publicKeyByte);
+            PrivateKey privateKeyLoad = getClassicMcEliecePrivateKeyFromEncoded(privateKeyByte);
+            PublicKey publicKeyLoad = getClassicMcEliecePublicKeyFromEncoded(publicKeyByte);
 
             // generate the encryption key and the encapsulated key
             System.out.println("\nEncryption side: generate the encryption key and the encapsulated key");
-            SecretKeyWithEncapsulation secretKeyWithEncapsulationSender = pqcGenerateSaberEncryptionKey(publicKeyLoad);
+            SecretKeyWithEncapsulation secretKeyWithEncapsulationSender = pqcGenerateClassicMcElieceEncryptionKey(publicKeyLoad);
             byte[] encryptionKey = secretKeyWithEncapsulationSender.getEncoded();
             System.out.println("encryption key length: " + encryptionKey.length
                     + " key: " + bytesToHex(secretKeyWithEncapsulationSender.getEncoded()));
@@ -108,7 +104,7 @@ public class PqcSaberKem {
             encapsulatedKeyLength[i] = encapsulatedKey.length;
 
             System.out.println("\nDecryption side: receive the encapsulated key and generate the decryption key");
-            byte[] decryptionKey = pqcGenerateSaberDecryptionKey(privateKeyLoad, encapsulatedKey);
+            byte[] decryptionKey = pqcGenerateClassicMcElieceDecryptionKey(privateKeyLoad, encapsulatedKey);
             System.out.println("decryption key length: " + decryptionKey.length + " key: " + bytesToHex(decryptionKey));
             boolean keysAreEqual = Arrays.areEqual(encryptionKey, decryptionKey);
             System.out.println("decryption key is equal to encryption key: " + keysAreEqual);
@@ -116,17 +112,17 @@ public class PqcSaberKem {
         }
 
         System.out.println("\nTest results");
-        System.out.println("parameter spec name  priKL   pubKL encKL capKL  keyE");
+        System.out.println("parameter spec name     priKL    pubKL encKL capKL  keyE");
         for (int i = 0; i < nrOfSpecs; i++) {
-             System.out.format("%-20s%6d%8d%6d%6d%6b%n", parameterSpecName[i], privateKeyLength[i], publicKeyLength[i], encryptionKeyLength[i], encapsulatedKeyLength[i], encryptionKeysEquals[i]);
+            System.out.format("%-20s%9d%9d%6d%6d%6b%n", parameterSpecName[i], privateKeyLength[i], publicKeyLength[i], encryptionKeyLength[i], encapsulatedKeyLength[i], encryptionKeysEquals[i]);
         }
         System.out.println("Legend: priKL privateKey length, pubKL publicKey length, encKL encryption key length, capKL encrapsulated key length, keyE encryption keys are equal\n");
     }
 
-    private static KeyPair generateSaberKeyPair(SABERParameterSpec saberParameterSpec) {
+    public static KeyPair generateClassicMcElieceKeyPair(CMCEParameterSpec cmceParameterSpec) {
         try {
-            KeyPairGenerator kpg = KeyPairGenerator.getInstance("SABER", "BCPQC");
-            kpg.initialize(saberParameterSpec, new SecureRandom());
+            KeyPairGenerator kpg = KeyPairGenerator.getInstance("CMCE", "BCPQC");
+            kpg.initialize(cmceParameterSpec, new SecureRandom());
             KeyPair kp = kpg.generateKeyPair();
             return kp;
         } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidAlgorithmParameterException e) {
@@ -135,23 +131,22 @@ public class PqcSaberKem {
         }
     }
 
-    public static SecretKeyWithEncapsulation pqcGenerateSaberEncryptionKey(PublicKey publicKey) {
+    public static SecretKeyWithEncapsulation pqcGenerateClassicMcElieceEncryptionKey(PublicKey publicKey) {
         KeyGenerator keyGen = null;
         try {
-            keyGen = KeyGenerator.getInstance("SABER", "BCPQC");
+            keyGen = KeyGenerator.getInstance("CMCE", "BCPQC");
             keyGen.init(new KEMGenerateSpec((PublicKey) publicKey, "AES"), new SecureRandom());
-            SecretKeyWithEncapsulation secEnc1 = (SecretKeyWithEncapsulation) keyGen.generateKey();
-            return secEnc1;
+            return (SecretKeyWithEncapsulation) keyGen.generateKey();
         } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidAlgorithmParameterException e) {
             e.printStackTrace();
             return null;
         }
     }
 
-    public static byte[] pqcGenerateSaberDecryptionKey(PrivateKey privateKey, byte[] encapsulatedKey) {
+    public static byte[] pqcGenerateClassicMcElieceDecryptionKey(PrivateKey privateKey, byte[] encapsulatedKey) {
         KeyGenerator keyGen = null;
         try {
-            keyGen = KeyGenerator.getInstance("SABER", "BCPQC");
+            keyGen = KeyGenerator.getInstance("CMCE", "BCPQC");
             keyGen.init(new KEMExtractSpec((PrivateKey) privateKey, encapsulatedKey, "AES"), new SecureRandom());
             SecretKeyWithEncapsulation secEnc2 = (SecretKeyWithEncapsulation) keyGen.generateKey();
             return secEnc2.getEncoded();
@@ -161,11 +156,11 @@ public class PqcSaberKem {
         }
     }
 
-    private static PrivateKey getSaberPrivateKeyFromEncoded(byte[] encodedKey) {
+    private static PrivateKey getClassicMcEliecePrivateKeyFromEncoded(byte[] encodedKey) {
         PKCS8EncodedKeySpec pkcs8EncodedKeySpec = new PKCS8EncodedKeySpec(encodedKey);
         KeyFactory keyFactory = null;
         try {
-            keyFactory = KeyFactory.getInstance("SABER", "BCPQC");
+            keyFactory = KeyFactory.getInstance("CMCE", "BCPQC");
             return keyFactory.generatePrivate(pkcs8EncodedKeySpec);
         } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidKeySpecException e) {
             e.printStackTrace();
@@ -173,11 +168,12 @@ public class PqcSaberKem {
         }
     }
 
-    private static PublicKey getSaberPublicKeyFromEncoded(byte[] encodedKey) {
+    private static PublicKey getClassicMcEliecePublicKeyFromEncoded(byte[] encodedKey) {
         X509EncodedKeySpec x509EncodedKeySpec = new X509EncodedKeySpec(encodedKey);
+        KeyFactory keyFactory = null;
         try {
-        KeyFactory keyFactory = KeyFactory.getInstance("SABER", "BCPQC");
-        return keyFactory.generatePublic(x509EncodedKeySpec);
+            keyFactory = KeyFactory.getInstance("CMCE", "BCPQC");
+            return keyFactory.generatePublic(x509EncodedKeySpec);
         } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidKeySpecException e) {
             e.printStackTrace();
             return null;

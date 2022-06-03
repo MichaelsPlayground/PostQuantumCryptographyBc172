@@ -1,9 +1,7 @@
 package de.androidcrypto.postquantumcryptographybc;
 
-import org.bouncycastle.pqc.jcajce.interfaces.SPHINCSPlusKey;
 import org.bouncycastle.pqc.jcajce.provider.BouncyCastlePQCProvider;
 import org.bouncycastle.pqc.jcajce.spec.PicnicParameterSpec;
-import org.bouncycastle.pqc.jcajce.spec.SPHINCSPlusParameterSpec;
 
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
@@ -26,7 +24,7 @@ import java.security.spec.X509EncodedKeySpec;
 public class PqcPicnicSignature {
 
 
-    public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException, NoSuchProviderException, InvalidKeySpecException {
+    public static void main(String[] args) {
         //Security.addProvider(new BouncyCastleProvider());
         // we do need the regular Bouncy Castle file that includes the PQC provider
         // get Bouncy Castle here: https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15on
@@ -124,26 +122,35 @@ public class PqcPicnicSignature {
         try {
             KeyPairGenerator kpg = KeyPairGenerator.getInstance("Picnic", "BCPQC");
             kpg.initialize(picnicParameterSpec, new SecureRandom());
-            KeyPair kp = kpg.generateKeyPair();
-            return kp;
+            return kpg.generateKeyPair();
         } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidAlgorithmParameterException e) {
             e.printStackTrace();
             return null;
         }
     }
 
-    private static PrivateKey getPicnicPrivateKeyFromEncoded(byte[] encodedKey)
-            throws NoSuchProviderException, NoSuchAlgorithmException, InvalidKeySpecException {
+    private static PrivateKey getPicnicPrivateKeyFromEncoded(byte[] encodedKey) {
         PKCS8EncodedKeySpec pkcs8EncodedKeySpec = new PKCS8EncodedKeySpec(encodedKey);
-        KeyFactory keyFactory = KeyFactory.getInstance("Picnic", "BCPQC");
-        return keyFactory.generatePrivate(pkcs8EncodedKeySpec);
+        KeyFactory keyFactory = null;
+        try {
+            keyFactory = KeyFactory.getInstance("Picnic", "BCPQC");
+            return keyFactory.generatePrivate(pkcs8EncodedKeySpec);
+        } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidKeySpecException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
-    private static PublicKey getPicnicPublicKeyFromEncoded(byte[] encodedKey)
-            throws NoSuchProviderException, NoSuchAlgorithmException, InvalidKeySpecException {
+    private static PublicKey getPicnicPublicKeyFromEncoded(byte[] encodedKey) {
         X509EncodedKeySpec x509EncodedKeySpec = new X509EncodedKeySpec(encodedKey);
-        KeyFactory keyFactory = KeyFactory.getInstance("Picnic", "BCPQC");
-        return keyFactory.generatePublic(x509EncodedKeySpec);
+        KeyFactory keyFactory = null;
+        try {
+            keyFactory = KeyFactory.getInstance("Picnic", "BCPQC");
+            return keyFactory.generatePublic(x509EncodedKeySpec);
+        } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidKeySpecException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     private static byte[] pqcPicnicSignature(PrivateKey privateKey, byte[] dataToSign) {
