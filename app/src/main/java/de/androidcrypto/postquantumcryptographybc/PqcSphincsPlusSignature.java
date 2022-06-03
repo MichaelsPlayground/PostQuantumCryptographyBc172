@@ -2,9 +2,6 @@ package de.androidcrypto.postquantumcryptographybc;
 
 import org.bouncycastle.pqc.jcajce.interfaces.SPHINCSPlusKey;
 import org.bouncycastle.pqc.jcajce.provider.BouncyCastlePQCProvider;
-import org.bouncycastle.pqc.jcajce.provider.rainbow.BCRainbowPrivateKey;
-import org.bouncycastle.pqc.jcajce.provider.rainbow.BCRainbowPublicKey;
-import org.bouncycastle.pqc.jcajce.spec.PicnicParameterSpec;
 import org.bouncycastle.pqc.jcajce.spec.SPHINCSPlusParameterSpec;
 
 import java.nio.charset.StandardCharsets;
