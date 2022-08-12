@@ -52,12 +52,12 @@ public class PqcFrodoKem {
 
         // as there are 6 parameter sets available the program runs all of them
         FrodoParameterSpec[] frodoParameterSpecs =  {
-                FrodoParameterSpec.frodokem19888r3,
-                FrodoParameterSpec.frodokem19888shaker3,
-                FrodoParameterSpec.frodokem31296r3,
-                FrodoParameterSpec.frodokem31296shaker3,
-                FrodoParameterSpec.frodokem43088r3,
-                FrodoParameterSpec.frodokem43088shaker3
+                FrodoParameterSpec.frodokem640aes,
+                FrodoParameterSpec.frodokem640shake,
+                FrodoParameterSpec.frodokem976aes,
+                FrodoParameterSpec.frodokem976shake,
+                FrodoParameterSpec.frodokem1344aes,
+                FrodoParameterSpec.frodokem1344shake
         };
 
         // statistics

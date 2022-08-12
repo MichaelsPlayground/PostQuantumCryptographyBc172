@@ -133,7 +133,8 @@ public class MainActivity extends AppCompatActivity {
         //PqcRainbowSignature.main(null);
         //PqcSaberKem.main(null);
         //PqcSphincsPlusSignature.main(null); // 24 parameter sets to run !
-        PqcNtruKem.main(null);
+        //PqcNtruKem.main(null);
+        PqcChrystalsKyberKem.main(null);
     }
 
     private static String getBouncyCastleVersion() {
@@ -191,7 +192,8 @@ public class MainActivity extends AppCompatActivity {
         try {
             KeyPairGenerator kpg = KeyPairGenerator.getInstance("SPHINCSPlus", "BCPQC");
             //kpg.initialize(SPHINCSPlusParameterSpec.sha256_128f, new SecureRandom());
-            kpg.initialize(SPHINCSPlusParameterSpec.shake256_256f, new SecureRandom());
+            //kpg.initialize(SPHINCSPlusParameterSpec.shake256_256f, new SecureRandom()); // Beta 02
+            kpg.initialize(SPHINCSPlusParameterSpec.shake_256f, new SecureRandom()); // Beta 10
             KeyPair kp = kpg.generateKeyPair();
             return kp;
         } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidAlgorithmParameterException e) {

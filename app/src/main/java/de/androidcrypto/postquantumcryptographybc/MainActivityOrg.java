@@ -366,7 +366,8 @@ public class MainActivityOrg extends AppCompatActivity {
         try {
             KeyPairGenerator kpg = KeyPairGenerator.getInstance("SPHINCSPlus", "BCPQC");
             //kpg.initialize(SPHINCSPlusParameterSpec.sha256_128f, new SecureRandom());
-            kpg.initialize(SPHINCSPlusParameterSpec.shake256_256f, new SecureRandom());
+            //kpg.initialize(SPHINCSPlusParameterSpec.shake256_256f, new SecureRandom()); // Beta 02
+            kpg.initialize(SPHINCSPlusParameterSpec.shake_256f, new SecureRandom()); // Beta 10
             KeyPair kp = kpg.generateKeyPair();
             return kp;
         } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidAlgorithmParameterException e) {

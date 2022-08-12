@@ -1,21 +1,32 @@
 package de.androidcrypto.postquantumcryptographybc;
 
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
+import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
 import org.bouncycastle.jcajce.SecretKeyWithEncapsulation;
 import org.bouncycastle.jcajce.spec.KEMExtractSpec;
 import org.bouncycastle.jcajce.spec.KEMGenerateSpec;
+/* Beta 10
 import org.bouncycastle.pqc.crypto.ntru.NTRUEncryptionKeyGenerationParameters;
 import org.bouncycastle.pqc.crypto.ntru.NTRUEncryptionKeyPairGenerator;
+import org.bouncycastle.pqc.crypto.ntru.NTRUEncryptionParameters;
 import org.bouncycastle.pqc.crypto.ntru.NTRUEncryptionPrivateKeyParameters;
 import org.bouncycastle.pqc.crypto.ntru.NTRUEncryptionPublicKeyParameters;
+import org.bouncycastle.pqc.crypto.ntru.NTRUEngine;
+ */
 import org.bouncycastle.pqc.jcajce.provider.BouncyCastlePQCProvider;
+import org.bouncycastle.pqc.legacy.crypto.ntru.NTRUEncryptionKeyGenerationParameters;
+import org.bouncycastle.pqc.legacy.crypto.ntru.NTRUEncryptionKeyPairGenerator;
+import org.bouncycastle.pqc.legacy.crypto.ntru.NTRUEncryptionParameters;
+import org.bouncycastle.pqc.legacy.crypto.ntru.NTRUEncryptionPrivateKeyParameters;
+import org.bouncycastle.pqc.legacy.crypto.ntru.NTRUEncryptionPublicKeyParameters;
+import org.bouncycastle.pqc.legacy.crypto.ntru.NTRUEngine;
 import org.bouncycastle.util.Arrays;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyFactory;
-import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
@@ -65,14 +76,23 @@ public class PqcNtruKem {
                 NTRUEncryptionKeyGenerationParameters.APR2011_743,
                 NTRUEncryptionKeyGenerationParameters.APR2011_743_FAST
         };
+        // short name of the parameters for the summary print out
+        String[] ntruEncryptionKeyGenerationParameterNames = {
+                "EES1087EP2",
+                "EES1171EP1",
+                "EES1499EP1",
+                "APR2011_439",
+                "APR2011_439_FAST",
+                "APR2011_743",
+                "APR2011_743_FAST"
+        };
 
         // statistics
         int nrOfSpecs = ntruEncryptionKeyGenerationParameterSets.length;
         String[] parameterSpecName = new String[nrOfSpecs];
         int[] privateKeyLength = new int[nrOfSpecs];
         int[] publicKeyLength = new int[nrOfSpecs];
-        int[] encryptionKeyLength = new int[nrOfSpecs];
-        int[] encapsulatedKeyLength = new int[nrOfSpecs];
+        int[] encryptedKeyLength = new int[nrOfSpecs];
         boolean[] encryptionKeysEquals = new boolean[nrOfSpecs];
 
         // data to encrypt is usually a 32 bytes long (randomly generated) AES key
@@ -82,7 +102,7 @@ public class PqcNtruKem {
         for (int i = 0; i < nrOfSpecs; i++) {
             // generation of the NTRU key pair
             NTRUEncryptionKeyGenerationParameters ntruEncryptionKeyGenerationParameters = ntruEncryptionKeyGenerationParameterSets[i];
-            String ntruParameterSpecName = ntruEncryptionKeyGenerationParameters.toString();
+            String ntruParameterSpecName = ntruEncryptionKeyGenerationParameterNames[i];
             parameterSpecName[i] = ntruParameterSpecName;
             System.out.println("\nNTRU KEM with parameterset " + ntruParameterSpecName);
             AsymmetricCipherKeyPair keyPair = generateNtruKeyPair(ntruEncryptionKeyGenerationParameters);
@@ -100,34 +120,30 @@ public class PqcNtruKem {
             publicKeyLength[i] = publicKeyByte.length;
 
             // generate the keys from a byte array
-            PrivateKey privateKeyLoad = getFrodoPrivateKeyFromEncoded(privateKeyByte);
-            PublicKey publicKeyLoad = getFrodoPublicKeyFromEncoded(publicKeyByte);
+            NTRUEncryptionPrivateKeyParameters privateKeyLoad = getNtruPrivateKeyFromEncoded(privateKeyByte, ntruEncryptionKeyGenerationParameters);
+            NTRUEncryptionPublicKeyParameters publicKeyLoad = getNtruPublicKeyFromEncoded(publicKeyByte, ntruEncryptionKeyGenerationParameters);
 
             // generate the encryption key and the encapsulated key
-            System.out.println("\nEncryption side: generate the encryption key and the encapsulated key");
-            SecretKeyWithEncapsulation secretKeyWithEncapsulationSender = pqcGenerateFrodoEncryptionKey(publicKeyLoad);
-            byte[] encryptionKey = secretKeyWithEncapsulationSender.getEncoded();
-            System.out.println("encryption key length: " + encryptionKey.length
-                    + " key: " + bytesToHex(secretKeyWithEncapsulationSender.getEncoded()));
-            byte[] encapsulatedKey = secretKeyWithEncapsulationSender.getEncapsulation();
-            System.out.println("encapsulated key length: " + encapsulatedKey.length + " key: " + bytesToHex(encapsulatedKey));
-            encryptionKeyLength[i] = encryptionKey.length;
-            encapsulatedKeyLength[i] = encapsulatedKey.length;
+            System.out.println("\nEncryption side: generate the encryption key");
+            byte[] encryptedKey = pqcNtruEncryptKey(publicKeyLoad, keyToEncrypt);
+            System.out.println("encrypted key length: " + encryptedKey.length
+                    + " key: " + bytesToHex(encryptedKey));
+            encryptedKeyLength[i] = encryptedKey.length;
 
-            System.out.println("\nDecryption side: receive the encapsulated key and generate the decryption key");
-            byte[] decryptionKey = pqcGenerateFrodoDecryptionKey(privateKeyLoad, encapsulatedKey);
-            System.out.println("decryption key length: " + decryptionKey.length + " key: " + bytesToHex(decryptionKey));
-            boolean keysAreEqual = Arrays.areEqual(encryptionKey, decryptionKey);
-            System.out.println("decryption key is equal to encryption key: " + keysAreEqual);
+            System.out.println("\nDecryption side: receive the encrypted key and decrypt it to the decryption key");
+            byte[] decryptedKey = pqcNtruDecryptKey(privateKeyLoad, encryptedKey);
+            System.out.println("decryption key length: " + decryptedKey.length + " key: " + bytesToHex(decryptedKey));
+            boolean keysAreEqual = Arrays.areEqual(keyToEncrypt, decryptedKey);
+            System.out.println("decrypted key is equal to keyToEncrypt: " + keysAreEqual);
             encryptionKeysEquals[i] = keysAreEqual;
         }
 
         System.out.println("\nTest results");
-        System.out.println("parameter spec name  priKL   pubKL encKL capKL  keyE");
+        System.out.println("parameter spec name  priKL   pubKL encKL  keyE");
         for (int i = 0; i < nrOfSpecs; i++) {
-             System.out.format("%-20s%6d%8d%6d%6d%6b%n", parameterSpecName[i], privateKeyLength[i], publicKeyLength[i], encryptionKeyLength[i], encapsulatedKeyLength[i], encryptionKeysEquals[i]);
+             System.out.format("%-20s%6d%8d%6d%6b%n", parameterSpecName[i], privateKeyLength[i], publicKeyLength[i], encryptedKeyLength[i], encryptionKeysEquals[i]);
         }
-        System.out.println("Legend: priKL privateKey length, pubKL publicKey length, encKL encryption key length, capKL encrapsulated key length, keyE encryption keys are equal\n");
+        System.out.println("Legend: priKL privateKey length, pubKL publicKey length, encKL encryption key length, keyE encryption keys are equal\n");
     }
 
     private static AsymmetricCipherKeyPair generateNtruKeyPair(NTRUEncryptionKeyGenerationParameters ntruEncryptionKeyGenerationParameters) {
@@ -137,7 +153,29 @@ public class PqcNtruKem {
         return kp;
     }
 
-    public static SecretKeyWithEncapsulation pqcGenerateFrodoEncryptionKey(PublicKey publicKey) {
+    private static byte[] pqcNtruEncryptKey(AsymmetricKeyParameter publicKey, byte[] keyToEncrypt) {
+        NTRUEngine ntru = new NTRUEngine();
+        ntru.init(true, publicKey);
+        try {
+            return ntru.processBlock(keyToEncrypt, 0, keyToEncrypt.length);
+        } catch (InvalidCipherTextException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private static byte[] pqcNtruDecryptKey(AsymmetricKeyParameter privateKey, byte[] encryptedKeyToDecrypt) {
+        NTRUEngine ntru = new NTRUEngine();
+        ntru.init(false, privateKey);
+        try {
+            return ntru.processBlock(encryptedKeyToDecrypt, 0, encryptedKeyToDecrypt.length);
+        } catch (InvalidCipherTextException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static SecretKeyWithEncapsulation pqcGenerateNtruEncryptionKey(PublicKey publicKey) {
         KeyGenerator keyGen = null;
         try {
             keyGen = KeyGenerator.getInstance("Frodo", "BCPQC");
@@ -163,16 +201,19 @@ public class PqcNtruKem {
         }
     }
 
-    private static PrivateKey getFrodoPrivateKeyFromEncoded(byte[] encodedKey) {
-        PKCS8EncodedKeySpec pkcs8EncodedKeySpec = new PKCS8EncodedKeySpec(encodedKey);
-        KeyFactory keyFactory = null;
+    private static NTRUEncryptionPrivateKeyParameters getNtruPrivateKeyFromEncoded(byte[] encodedKey, NTRUEncryptionKeyGenerationParameters ntruEncryptionKeyGenerationParameters) {
+        NTRUEncryptionParameters ntruEncryptionParameters = ntruEncryptionKeyGenerationParameters.getEncryptionParameters();
         try {
-            keyFactory = KeyFactory.getInstance("Frodo", "BCPQC");
-            return keyFactory.generatePrivate(pkcs8EncodedKeySpec);
-        } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidKeySpecException e) {
+            return new NTRUEncryptionPrivateKeyParameters(encodedKey, ntruEncryptionParameters);
+        } catch (IOException e) {
             e.printStackTrace();
             return null;
         }
+    }
+
+    private static NTRUEncryptionPublicKeyParameters getNtruPublicKeyFromEncoded(byte[] encodedKey, NTRUEncryptionKeyGenerationParameters ntruEncryptionKeyGenerationParameters) {
+        NTRUEncryptionParameters ntruEncryptionParameters = ntruEncryptionKeyGenerationParameters.getEncryptionParameters();
+        return new NTRUEncryptionPublicKeyParameters(encodedKey, ntruEncryptionParameters);
     }
 
     private static PublicKey getFrodoPublicKeyFromEncoded(byte[] encodedKey) {
