@@ -1,10 +1,27 @@
 # Post Quantum Cryptography wwith Bouncy Castle
 
-This version uses a Beta version of Bouncy Castle (1.72 Beta 02) to use the PQC Picnic Signature algorithm
+This version uses a Beta version of Bouncy Castle (1.72 Beta 10) to use the PQC Picnic Signature algorithm
 
-https://downloads.bouncycastle.org/betas/bcprov-ext-jdk18on-172b02.jar 
+https://downloads.bouncycastle.org/betas/bcprov-ext-jdk18on-172b10.jar 
 
 Official NIST homepage: https://csrc.nist.gov/Projects/post-quantum-cryptography
+
+Selected algorithms: https://csrc.nist.gov/Projects/post-quantum-cryptography/selected-algorithms-2022
+
+Selected Algorithms: Public-key Encryption and Key-establishment Algorithms:
+
+CRYSTALS-KYBER
+
+Selected Algorithms: Digital Signature Algorithms:
+
+CRYSTALS-DILITHIUM (As BC in 1.72 Beta 10 does not provide an implementation of Chrystals-Dilithium  
+this signature scheme uses an other implementation: https://github.com/mthiim/dilithium-java)
+
+FALCON
+
+SPHINCS+
+
+Round 4 searching for alternatives: https://csrc.nist.gov/Projects/post-quantum-cryptography/round-4-submissions
 
 Round 3 candidates: 
 ```plaintext

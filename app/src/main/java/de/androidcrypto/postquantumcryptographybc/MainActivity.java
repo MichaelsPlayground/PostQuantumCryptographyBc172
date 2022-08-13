@@ -135,7 +135,8 @@ public class MainActivity extends AppCompatActivity {
         //PqcSphincsPlusSignature.main(null); // 24 parameter sets to run !
         //PqcNtruKem.main(null);
         //PqcChrystalsKyberKem.main(null);
-        PqcFalconSignature.main((null));
+        //PqcFalconSignature.main((null));
+        PqcChrystalsDilithiumMthiimSignature.main(null);
     }
 
     private static String getBouncyCastleVersion() {
