@@ -15,6 +15,22 @@ application but only on the console, so you need to run the code in Android Stud
 The complete run with all algorithms and parameter sets will take some minutes to complete, so please be 
 patient.**
 
+Each algorithm is running the same flow:
+```plaintext
+- generate an asymmetric key pair with a parameterset
+- encode the key to a byte array (e.g. for storing anywhere)
+- rebuild the key from its encoded form
+
+for kems:
+- exchange the public keys between the two parties
+- generate the encryption key on sender side with privateKeySender and publicKeyRecipient
+- generate the decryption key on recipients side with privateKeyRecipient and publicKeySender
+- compare both keys
+
+for signatures:
+- sign a plaintext with the privateKey
+- verify the signature with the publicKey
+```
 
 ```plaintext
 Selected Algorithms: Public-key Encryption and Key-establishment Algorithms:
