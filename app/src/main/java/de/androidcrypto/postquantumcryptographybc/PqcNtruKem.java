@@ -74,7 +74,7 @@ public class PqcNtruKem {
                 NTRUEncryptionKeyGenerationParameters.APR2011_439,
                 NTRUEncryptionKeyGenerationParameters.APR2011_439_FAST,
                 NTRUEncryptionKeyGenerationParameters.APR2011_743,
-                NTRUEncryptionKeyGenerationParameters.APR2011_743_FAST
+                NTRUEncryptionKeyGenerationParameters.APR2011_743_FAST,
         };
         // short name of the parameters for the summary print out
         String[] ntruEncryptionKeyGenerationParameterNames = {

@@ -1,15 +1,12 @@
 package de.androidcrypto.postquantumcryptographybc;
 
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.os.Bundle;
-
 import android.os.Build;
+import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-/* ##### place your imports here ##### */
+import androidx.appcompat.app.AppCompatActivity;
 
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
 import org.bouncycastle.crypto.digests.SHA3Digest;
@@ -24,12 +21,15 @@ import org.bouncycastle.pqc.crypto.sphincs.SPHINCS256Signer;
 import org.bouncycastle.pqc.crypto.sphincs.SPHINCSPrivateKeyParameters;
 import org.bouncycastle.pqc.crypto.sphincs.SPHINCSPublicKeyParameters;
 import org.bouncycastle.pqc.jcajce.interfaces.CMCEKey;
-import org.bouncycastle.pqc.jcajce.provider.BouncyCastlePQCProvider;
-
 import org.bouncycastle.pqc.jcajce.interfaces.SPHINCSPlusKey;
+import org.bouncycastle.pqc.jcajce.provider.BouncyCastlePQCProvider;
 import org.bouncycastle.pqc.jcajce.spec.CMCEParameterSpec;
 import org.bouncycastle.pqc.jcajce.spec.SPHINCSPlusParameterSpec;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
@@ -44,7 +44,6 @@ import java.security.SecureRandom;
 import java.security.Security;
 import java.security.Signature;
 import java.security.SignatureException;
-import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -54,10 +53,10 @@ import java.util.Calendar;
 
 import javax.crypto.KeyGenerator;
 
-/* ##### place your imports here ##### */
 
 public class MainActivity extends AppCompatActivity {
 
+    TextView textViewConsole;
     String consoleText = "";
     String APPTITLE = "change the application title here";
 
@@ -65,6 +64,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        textViewConsole = (TextView) findViewById(R.id.textviewConsole);
+
+
 
         Button btnClearConsole = findViewById(R.id.btnClearConsole);
         Button btnRunCode = findViewById(R.id.btnRunCode);
@@ -86,18 +88,23 @@ public class MainActivity extends AppCompatActivity {
                 runMain();
             }
         });
+
     }
 
     public void clearConsole() {
         consoleText = "";
-        TextView textViewConsole = (TextView) findViewById(R.id.textviewConsole);
         textViewConsole.setText(consoleText);
         MainActivity.this.setTitle(APPTITLE);
     }
 
+    public void appendConsole(String message) {
+        String oldText = textViewConsole.getText().toString();
+        String newText = oldText + "\n" + message;
+        textViewConsole.setText(newText);
+    }
+
     public void printlnX(String print) {
         consoleText = consoleText + print + "\n";
-        TextView textViewConsole = (TextView) findViewById(R.id.textviewConsole);
         textViewConsole.setText(consoleText);
         System.out.println();
     }
@@ -127,16 +134,22 @@ public class MainActivity extends AppCompatActivity {
         printlnX("BouncyCastle version: " + getBouncyCastleVersion());
         printlnX("BouncyCastle PQC version: " + getBouncyCastlePqcVersion());
 
-        //PqcClassicMcElieceKem.main(null);
-        //PqcFrodoKem.main(null);
-        //PqcPicnicSignature.main(null);
-        //PqcRainbowSignature.main(null);
-        //PqcSaberKem.main(null);
-        //PqcSphincsPlusSignature.main(null); // 24 parameter sets to run !
-        //PqcNtruKem.main(null);
-        //PqcChrystalsKyberKem.main(null);
-        //PqcFalconSignature.main((null));
+        printlnX("");
+        printlnX("see in your console output for results, it may takes some minutes to complete");
+
+        // kem's
+        PqcChrystalsKyberKem.main(null);
+        PqcClassicMcElieceKem.main(null); // 6 parameter sets to run !
+        PqcFrodoKem.main(null); // round 3 candidate
+        PqcSaberKem.main(null); // round 3 candidate
+        PqcNtruKem.main(null); // round 3 candidate
+
+        // signatures
         PqcChrystalsDilithiumMthiimSignature.main(null);
+        PqcFalconSignature.main((null));
+        PqcSphincsPlusSignature.main(null); // 24 parameter sets to run !
+        PqcPicnicSignature.main(null); // round 3 candidate
+        PqcRainbowSignature.main(null); // round 3 candidate
     }
 
     private static String getBouncyCastleVersion() {
