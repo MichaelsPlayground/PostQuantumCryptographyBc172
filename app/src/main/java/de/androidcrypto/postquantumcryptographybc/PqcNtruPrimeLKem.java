@@ -179,7 +179,7 @@ public class PqcNtruPrimeLKem {
         System.out.println("\nTest results");
         System.out.println("parameter spec name  priKL   pubKL encKL  keyE");
         for (int i = 0; i < nrOfSpecs; i++) {
-             System.out.format("%-20s%6d%8d%6d%6b%n", parameterSpecName[i], privateKeyLength[i], publicKeyLength[i], encryptedKeyLength[i], encryptionKeysEquals[i]);
+            System.out.format("%-20s%6d%8d%6d%6b%n", parameterSpecName[i], privateKeyLength[i], publicKeyLength[i], encryptedKeyLength[i], encryptionKeysEquals[i]);
         }
         System.out.println("Legend: priKL privateKey length, pubKL publicKey length, encKL encryption key length, keyE encryption keys are equal\n");
     }
@@ -232,7 +232,7 @@ public class PqcNtruPrimeLKem {
             //PKCS8EncodedKeySpec pkcs8EncodedKeySpec = new PKCS8EncodedKeySpec(encodedKey);
             //PrivateKey privateKey = keyFactory.generatePrivate(pkcs8EncodedKeySpec);
             //return (AsymmetricKeyParameter) privateKey;
-        //} catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidKeySpecException | IOException e) {
+            //} catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidKeySpecException | IOException e) {
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -247,7 +247,7 @@ public class PqcNtruPrimeLKem {
             //PublicKey publicKey = keyFactory.generatePublic(x509EncodedKeySpec);
             //return (AsymmetricKeyParameter) publicKey;
             return keyFactory;
-        //} catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidKeySpecException | IOException e) {
+            //} catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidKeySpecException | IOException e) {
         } catch (IOException e) {
             e.printStackTrace();
             return null;

@@ -143,10 +143,12 @@ public class MainActivity extends AppCompatActivity {
         PqcClassicMcElieceKem.main(null); // 6 parameter sets to run !
         PqcFrodoKem.main(null); // round 3 candidate
         PqcSaberKem.main(null); // round 3 candidate
+        */
         PqcNtruKem.main(null); // round 3 candidate
-*/
+        //PqcNtruPrimeLKemSo.main(null);
+        //PqcNtruPrimeLKemSo2.main(null);
         //PqcNtruPrimeKem.main(null);
-        PqcNtruPrimeLKem.main(null);
+        //PqcNtruPrimeLKem.main(null);
         // signatures
         /*
         PqcChrystalsDilithiumBcSignature.main(null);
