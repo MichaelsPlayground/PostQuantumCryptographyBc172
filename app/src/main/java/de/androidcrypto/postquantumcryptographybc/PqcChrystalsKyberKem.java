@@ -183,19 +183,6 @@ public class PqcChrystalsKyberKem {
         }
     }
 
-    public static byte[] pqcGenerateSaberDecryptionKey(PrivateKey privateKey, byte[] encapsulatedKey) {
-        KeyGenerator keyGen = null;
-        try {
-            keyGen = KeyGenerator.getInstance("SABER", "BCPQC");
-            keyGen.init(new KEMExtractSpec((PrivateKey) privateKey, encapsulatedKey, "AES"), new SecureRandom());
-            SecretKeyWithEncapsulation secEnc2 = (SecretKeyWithEncapsulation) keyGen.generateKey();
-            return secEnc2.getEncoded();
-        } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidAlgorithmParameterException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
     private static PrivateKey getChrystalsKyberPrivateKeyFromEncoded(byte[] encodedKey) {
         PKCS8EncodedKeySpec pkcs8EncodedKeySpec = new PKCS8EncodedKeySpec(encodedKey);
         KeyFactory keyFactory = null;

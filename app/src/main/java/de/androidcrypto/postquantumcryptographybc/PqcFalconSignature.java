@@ -122,7 +122,6 @@ public class PqcFalconSignature {
         }
     }
 
-    //public static byte[] pqcSphincsPlusSignature(PrivateKey privateKey, byte[] messageByte) {
     private static byte[] pqcFalconSignature(FalconKey privateKey, byte[] messageByte) {
         try {
             Signature sig = Signature.getInstance("Falcon", "BCPQC");
@@ -136,7 +135,6 @@ public class PqcFalconSignature {
         }
     }
 
-    //public static Boolean pqcSphincsPlusVerification(PublicKey publicKey, byte[] messageByte, byte[] signatureByte) {
     private static Boolean pqcFalconVerification(FalconKey publicKey, byte[] messageByte, byte[] signatureByte) {
         try {
             Signature sig = Signature.getInstance("Falcon", "BCPQC");

@@ -138,18 +138,24 @@ public class MainActivity extends AppCompatActivity {
         printlnX("see in your console output for results, it may takes some minutes to complete");
 
         // kem's
+        /*
         PqcChrystalsKyberKem.main(null);
         PqcClassicMcElieceKem.main(null); // 6 parameter sets to run !
         PqcFrodoKem.main(null); // round 3 candidate
         PqcSaberKem.main(null); // round 3 candidate
         PqcNtruKem.main(null); // round 3 candidate
-
+*/
+        //PqcNtruPrimeKem.main(null);
+        PqcNtruPrimeLKem.main(null);
         // signatures
-        PqcChrystalsDilithiumMthiimSignature.main(null);
+        /*
+        PqcChrystalsDilithiumBcSignature.main(null);
         PqcFalconSignature.main((null));
         PqcSphincsPlusSignature.main(null); // 24 parameter sets to run !
         PqcPicnicSignature.main(null); // round 3 candidate
         PqcRainbowSignature.main(null); // round 3 candidate
+        */
+
     }
 
     private static String getBouncyCastleVersion() {

@@ -41,6 +41,4 @@ dependencies {
     // https://mvnrepository.com/artifact/org.bouncycastle/bcpkix-jdk18on
     //implementation group: 'org.bouncycastle', name: 'bcpkix-jdk18on', version: '1.71'
 
-
-
 }

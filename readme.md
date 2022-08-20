@@ -1,10 +1,10 @@
 # Post Quantum Cryptography wwith Bouncy Castle
 
-This version uses a Beta version of Bouncy Castle (1.72 Beta 10) to use most of the PQC finalists and candidates.
+This version uses a Beta version of Bouncy Castle (1.72 Beta 13) to use most of the PQC finalists and candidates.
 
 see the Bouncy Castle release notes: https://github.com/bcgit/bc-java/blob/master/docs/releasenotes.html
 
-https://downloads.bouncycastle.org/betas/bcprov-ext-jdk18on-172b10.jar 
+https://downloads.bouncycastle.org/betas/bcprov-ext-jdk18on-172b13.jar 
 
 Official NIST homepage: https://csrc.nist.gov/Projects/post-quantum-cryptography
 
