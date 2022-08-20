@@ -34,14 +34,14 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
-public class PqcNtruPrimeLKem {
+public class PqcNtruLPRimeKem {
 
 
     public static void main(String[] args) {
         //Security.addProvider(new BouncyCastleProvider());
         // we do need the regular Bouncy Castle file that includes the PQC provider
         // get Bouncy Castle here: https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15on
-        // tested with BC version 1.71
+        // tested with BC version 1.72 Beta 13
         if (Security.getProvider("BCPQC") == null) {
             Security.addProvider(new BouncyCastlePQCProvider());
         }
@@ -51,7 +51,7 @@ public class PqcNtruPrimeLKem {
                 "* # # SERIOUS SECURITY WARNING # # *\n" +
                 "* This program is a CONCEPT STUDY  *\n" +
                 "* for the algorithm                *\n" +
-                "* NTRU Prime L                     *\n" +
+                "* NTRULPRime                       *\n" +
                 "* [key exchange mechanism]         *\n" +
                 "* The program is using an          *\n" +
                 "* parameter set that I cannot      *\n" +
@@ -65,25 +65,13 @@ public class PqcNtruPrimeLKem {
         // as there are 6 parameter sets available the program runs all of them
         NTRULPRimeParameters[] ntruLPrimeParameters = new NTRULPRimeParameters[] {
                 NTRULPRimeParameters.ntrulpr653,
-                /*
                 NTRULPRimeParameters.ntrulpr761,
                 NTRULPRimeParameters.ntrulpr857,
                 NTRULPRimeParameters.ntrulpr953,
                 NTRULPRimeParameters.ntrulpr1013,
                 NTRULPRimeParameters.ntrulpr1277
-
-                 */
         };
-/*
-        SNTRUPrimeParameters[] sntruPrimeParameters = new SNTRUPrimeParameters[] {
-                        SNTRUPrimeParameters.sntrup653,
-                        SNTRUPrimeParameters.sntrup761,
-                        SNTRUPrimeParameters.sntrup857,
-                        SNTRUPrimeParameters.sntrup953,
-                        SNTRUPrimeParameters.sntrup1013,
-                        SNTRUPrimeParameters.sntrup1277
-                };
-*/
+
         // statistics
         int nrOfSpecs = ntruLPrimeParameters.length;
         String[] parameterSpecName = new String[nrOfSpecs];
@@ -98,7 +86,6 @@ public class PqcNtruPrimeLKem {
 
         for (int i = 0; i < nrOfSpecs; i++) {
             // generation of the NTRU Prime key pair
-            //SNTRUPrimeParameters sntruPrimeParameter = sntruPrimeParameters[i];
             NTRULPRimeParameters ntruLPrimeParameter = ntruLPrimeParameters[i];
             String ntruPrimeParameterSpecName = ntruLPrimeParameter.getName();
             parameterSpecName[i] = ntruPrimeParameterSpecName;
@@ -109,18 +96,8 @@ public class PqcNtruPrimeLKem {
             AsymmetricKeyParameter privateKey = keyPair.getPrivate();
             AsymmetricKeyParameter publicKey = keyPair.getPublic();
 
-
             // storing the key as byte array
             byte[] privateKeyByte = ((NTRULPRimePrivateKeyParameters) privateKey).getEncoded();
-
-            /*
-            byte[] privateKeyByteF = ((SNTRUPrimePrivateKeyParameters)privateKey).getF();
-            byte[] privateKeyByteGinv = ((SNTRUPrimePrivateKeyParameters)privateKey).getGinv();
-            byte[] privateKeyByteHash = ((SNTRUPrimePrivateKeyParameters)privateKey).getHash();
-            byte[] privateKeyBytePk = ((SNTRUPrimePrivateKeyParameters)privateKey).getPk();
-            byte[] privateKeyByteRho = ((SNTRUPrimePrivateKeyParameters)privateKey).getRho();
-
-             */
             byte[] publicKeyByte = ((NTRULPRimePublicKeyParameters) publicKey).getEncoded();
 
             System.out.println("\ngenerated private key length: " + privateKeyByte.length);
@@ -128,35 +105,12 @@ public class PqcNtruPrimeLKem {
             privateKeyLength[i] = privateKeyByte.length;
             publicKeyLength[i] = publicKeyByte.length;
             // todo get key from encoded form
-            AsymmetricKeyParameter publicKeyLoad = getNtruLPrimePublicKeyFromEncoded(publicKeyByte);
-            AsymmetricKeyParameter privateKeyLoad = getNtruLPrimePrivateKeyFromEncoded(privateKeyByte);
-
-            if (privateKeyLoad != null) {
-                System.out.println("pkl: " + privateKey.equals(privateKeyLoad));
-            }
-            if (publicKeyLoad != null) {
-                System.out.println("pul: " + publicKey.equals(publicKeyLoad));
-            }
-/*
-            System.out.println("A04 Auflistung aller Kryptographie-Provider und unterstützten Algorithmen");
-            // source https://stackoverflow.com/questions/3683302/how-to-find-out-what-algorithm-encryption-are-supported-by-my-jvm/3683915#3683915
-            for (Provider provider : Security.getProviders()) {
-                System.out.println("Provider: " + provider.getName() + " version: " + provider.getVersion());
-                for (Provider.Service service : provider.getServices()) {
-                    System.out.printf("  Type: %-30s  Algorithm: %-30s\n", service.getType(), service.getAlgorithm());
-                }
-            }
-*/
-
-
-            // generate the keys from a byte array
-            //AsymmetricKeyParameter privateKeyLoad = (SNTRUPrimePrivateKeyParameters) getNtruPrimePrivateKeyFromEncoded(privateKeyByteF, privateKeyByteGinv, privateKeyBytePk, privateKeyByteRho, privateKeyByteHash, sntruPrimeParameter);
-            //AsymmetricKeyParameter publicKeyLoad = (SNTRUPrimePublicKeyParameters) getNtruPrimePublicKeyFromEncoded(publicKeyByte, sntruPrimeParameter);
+            //AsymmetricKeyParameter publicKeyLoad = getNtruLPrimePublicKeyFromEncoded(publicKeyByte);
+            //AsymmetricKeyParameter privateKeyLoad = getNtruLPrimePrivateKeyFromEncoded(privateKeyByte);
 
             // generate the encryption key and the encapsulated key
             System.out.println("\nEncryption side: generate the encryption key");
-            //byte[] encryptedKey = pqcNtruEncryptKey(publicKeyLoad, keyToEncrypt);
-            SecretWithEncapsulation secretKeyWithEncapsulation = pqcNtruPrimeGenerateSecretWithEncapsulation(publicKeyLoad);
+            SecretWithEncapsulation secretKeyWithEncapsulation = pqcNtruPrimeGenerateSecretWithEncapsulation(publicKey);
             // this is the encryption key for e.g. aes encryption
             byte[] encryptionKey = secretKeyWithEncapsulation.getSecret();
             System.out.println("encryption key length: " + encryptionKey.length
@@ -168,7 +122,6 @@ public class PqcNtruPrimeLKem {
                     + " key: " + bytesToHex(encapsulatedKey));
 
             System.out.println("\nDecryption side: receive the encapsulated key and decrypt it to the decryption key");
-            //byte[] decryptedKey = pqcNtruDecryptKey(privateKeyLoad, encryptedKey);
             byte[] decryptedKey = pqcNtruPrimeExtractSecretWithEncapsulation(privateKey, encapsulatedKey);
             System.out.println("decryption key length: " + decryptedKey.length + " key: " + bytesToHex(decryptedKey));
             boolean keysAreEqual = Arrays.areEqual(encryptionKey, decryptedKey);
@@ -220,8 +173,9 @@ public class PqcNtruPrimeLKem {
         return kemExtractor.extractSecret(secretToDecrypt);
     }
 
-    private static AsymmetricKeyParameter getNtruPrimePrivateKeyFromEncoded(byte[] f, byte[] ginv, byte[] pk, byte[] rho, byte[] hash, SNTRUPrimeParameters sntruPrimeParameter) {
-        return new SNTRUPrimePrivateKeyParameters(sntruPrimeParameter, f, ginv, pk, rho, hash);
+    //private static AsymmetricKeyParameter getNtruPrimePrivateKeyFromEncoded(byte[] f, byte[] ginv, byte[] pk, byte[] rho, byte[] hash, NTRULPRimeParameters ntruLPRimeParameter) {
+    private static AsymmetricKeyParameter getNtruPrimePrivateKeyFromEncoded(byte[] enc, byte[] pk, byte[] rho, byte[] hash, NTRULPRimeParameters ntruLPRimeParameter) {
+        return new NTRULPRimePrivateKeyParameters(ntruLPRimeParameter, enc, pk, rho, hash);
     }
 
     private static AsymmetricKeyParameter getNtruLPrimePrivateKeyFromEncoded(byte[] encodedKey) {

@@ -26,10 +26,6 @@ import org.bouncycastle.pqc.jcajce.provider.BouncyCastlePQCProvider;
 import org.bouncycastle.pqc.jcajce.spec.CMCEParameterSpec;
 import org.bouncycastle.pqc.jcajce.spec.SPHINCSPlusParameterSpec;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
@@ -146,7 +142,8 @@ public class MainActivity extends AppCompatActivity {
         PqcNtruKem.main(null); // round 3 candidate
 */
         //PqcNtruPrimeKem.main(null);
-        PqcNtruPrimeLKem.main(null);
+        //PqcNtruLPRimeKem.main(null);
+        PqcNtruLPRimeKemSo2.main(null);
         // signatures
         /*
         PqcChrystalsDilithiumBcSignature.main(null);
