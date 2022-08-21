@@ -10,31 +10,13 @@ import org.bouncycastle.pqc.crypto.ntruprime.NTRULPRimeKeyPairGenerator;
 import org.bouncycastle.pqc.crypto.ntruprime.NTRULPRimeParameters;
 import org.bouncycastle.pqc.crypto.ntruprime.NTRULPRimePrivateKeyParameters;
 import org.bouncycastle.pqc.crypto.ntruprime.NTRULPRimePublicKeyParameters;
-import org.bouncycastle.pqc.crypto.ntruprime.SNTRUPrimeKEMExtractor;
-import org.bouncycastle.pqc.crypto.ntruprime.SNTRUPrimeKEMGenerator;
-import org.bouncycastle.pqc.crypto.ntruprime.SNTRUPrimeKeyGenerationParameters;
-import org.bouncycastle.pqc.crypto.ntruprime.SNTRUPrimeKeyPairGenerator;
-import org.bouncycastle.pqc.crypto.ntruprime.SNTRUPrimeParameters;
-import org.bouncycastle.pqc.crypto.ntruprime.SNTRUPrimePrivateKeyParameters;
-import org.bouncycastle.pqc.crypto.ntruprime.SNTRUPrimePublicKeyParameters;
-import org.bouncycastle.pqc.crypto.util.PrivateKeyFactory;
-import org.bouncycastle.pqc.crypto.util.PublicKeyFactory;
 import org.bouncycastle.pqc.jcajce.provider.BouncyCastlePQCProvider;
-//bc-java/core/src/main/java/org/bouncycastle/pqc/crypto/util/PrivateKeyFactory.java
 import org.bouncycastle.util.Arrays;
 
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.Security;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.X509EncodedKeySpec;
 
-public class PqcNtruLPRimeKem {
+public class PqcNtruLPRimeKemSo3 {
 
 
     public static void main(String[] args) {
@@ -45,7 +27,7 @@ public class PqcNtruLPRimeKem {
         if (Security.getProvider("BCPQC") == null) {
             Security.addProvider(new BouncyCastlePQCProvider());
         }
-        System.out.println("PQC NTRU LPRime kem");
+        System.out.println("PQC NTRU Prime L kem");
 
         System.out.println("\n************************************\n" +
                 "* # # SERIOUS SECURITY WARNING # # *\n" +
