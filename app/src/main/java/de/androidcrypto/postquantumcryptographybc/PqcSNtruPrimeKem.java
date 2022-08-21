@@ -25,7 +25,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
-public class PqcNtruPrimeKem {
+public class PqcSNtruPrimeKem {
 
 
     public static void main(String[] args) {
@@ -36,13 +36,13 @@ public class PqcNtruPrimeKem {
         if (Security.getProvider("BCPQC") == null) {
             Security.addProvider(new BouncyCastlePQCProvider());
         }
-        System.out.println("PQC NTRU Prime kem");
+        System.out.println("PQC SNTRU Prime kem (streamlined NTRUPrime");
 
         System.out.println("\n************************************\n" +
                 "* # # SERIOUS SECURITY WARNING # # *\n" +
                 "* This program is a CONCEPT STUDY  *\n" +
                 "* for the algorithm                *\n" +
-                "* NTRU Prime                       *\n" +
+                "* SNTRU Prime                       *\n" +
                 "* [key exchange mechanism]         *\n" +
                 "* The program is using an          *\n" +
                 "* parameter set that I cannot      *\n" +
@@ -100,19 +100,6 @@ public class PqcNtruPrimeKem {
             System.out.println("generated public key length:  " + publicKeyByte.length);
             privateKeyLength[i] = privateKeyByte.length;
             publicKeyLength[i] = publicKeyByte.length;
-            // todo get key from encoded form
-
-            /*
-            System.out.println("A04 Auflistung aller Kryptographie-Provider und unterstützten Algorithmen");
-            // source https://stackoverflow.com/questions/3683302/how-to-find-out-what-algorithm-encryption-are-supported-by-my-jvm/3683915#3683915
-            for (Provider provider : Security.getProviders()) {
-                System.out.println("Provider: " + provider.getName() + " version: " + provider.getVersion());
-                for (Provider.Service service : provider.getServices()) {
-                    System.out.printf("  Type: %-30s  Algorithm: %-30s\n", service.getType(), service.getAlgorithm());
-                }
-            }
-
-             */
 
             // generate the keys from a byte array
             AsymmetricKeyParameter privateKeyLoad = (SNTRUPrimePrivateKeyParameters) getNtruPrimePrivateKeyFromEncoded(privateKeyByteF, privateKeyByteGinv, privateKeyBytePk, privateKeyByteRho, privateKeyByteHash, sntruPrimeParameter);

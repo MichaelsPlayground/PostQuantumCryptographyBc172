@@ -90,7 +90,7 @@ public class PqcNtruLPRimeKem {
             String ntruPrimeParameterSpecName = ntruLPrimeParameter.getName();
             parameterSpecName[i] = ntruPrimeParameterSpecName;
             System.out.println("\nNTRU Prime KEM with parameterset " + ntruPrimeParameterSpecName);
-            AsymmetricCipherKeyPair keyPair = generateNtruLPrimeKeyPair(ntruLPrimeParameter);
+            AsymmetricCipherKeyPair keyPair = generateNtruLPRimeKeyPair(ntruLPrimeParameter);
 
             // get private and public key
             AsymmetricKeyParameter privateKey = keyPair.getPrivate();
@@ -98,19 +98,23 @@ public class PqcNtruLPRimeKem {
 
             // storing the key as byte array
             byte[] privateKeyByte = ((NTRULPRimePrivateKeyParameters) privateKey).getEncoded();
+            byte[] privateKeyByteEnca = ((NTRULPRimePrivateKeyParameters)privateKey).getEnca();
+            byte[] privateKeyBytePk = ((NTRULPRimePrivateKeyParameters)privateKey).getPk();
+            byte[] privateKeyByteHash = ((NTRULPRimePrivateKeyParameters)privateKey).getHash();
+            byte[] privateKeyByteRho = ((NTRULPRimePrivateKeyParameters)privateKey).getRho();
             byte[] publicKeyByte = ((NTRULPRimePublicKeyParameters) publicKey).getEncoded();
 
             System.out.println("\ngenerated private key length: " + privateKeyByte.length);
             System.out.println("generated public key length:  " + publicKeyByte.length);
             privateKeyLength[i] = privateKeyByte.length;
             publicKeyLength[i] = publicKeyByte.length;
-            // todo get key from encoded form
-            //AsymmetricKeyParameter publicKeyLoad = getNtruLPrimePublicKeyFromEncoded(publicKeyByte);
-            //AsymmetricKeyParameter privateKeyLoad = getNtruLPrimePrivateKeyFromEncoded(privateKeyByte);
+            // generate the keys from a byte array
+            AsymmetricKeyParameter publicKeyLoad = getNtruLPRimePublicKeyFromEncoded(publicKeyByte, ntruLPrimeParameter);
+            AsymmetricKeyParameter privateKeyLoad = getNtruLPRimePrivateKeyFromEncoded(privateKeyByteEnca, privateKeyBytePk, privateKeyByteRho, privateKeyByteHash, ntruLPrimeParameter);
 
             // generate the encryption key and the encapsulated key
             System.out.println("\nEncryption side: generate the encryption key");
-            SecretWithEncapsulation secretKeyWithEncapsulation = pqcNtruPrimeGenerateSecretWithEncapsulation(publicKey);
+            SecretWithEncapsulation secretKeyWithEncapsulation = pqcNtruLPRimeGenerateSecretWithEncapsulation(publicKeyLoad);
             // this is the encryption key for e.g. aes encryption
             byte[] encryptionKey = secretKeyWithEncapsulation.getSecret();
             System.out.println("encryption key length: " + encryptionKey.length
@@ -122,7 +126,7 @@ public class PqcNtruLPRimeKem {
                     + " key: " + bytesToHex(encapsulatedKey));
 
             System.out.println("\nDecryption side: receive the encapsulated key and decrypt it to the decryption key");
-            byte[] decryptedKey = pqcNtruPrimeExtractSecretWithEncapsulation(privateKey, encapsulatedKey);
+            byte[] decryptedKey = pqcNtruLRimeExtractSecretWithEncapsulation(privateKeyLoad, encapsulatedKey);
             System.out.println("decryption key length: " + decryptedKey.length + " key: " + bytesToHex(decryptedKey));
             boolean keysAreEqual = Arrays.areEqual(encryptionKey, decryptedKey);
             System.out.println("decrypted key is equal to keyToEncrypt: " + keysAreEqual);
@@ -137,79 +141,30 @@ public class PqcNtruLPRimeKem {
         System.out.println("Legend: priKL privateKey length, pubKL publicKey length, encKL encryption key length, keyE encryption keys are equal\n");
     }
 
-    private static AsymmetricCipherKeyPair generateNtruLPrimeKeyPair(NTRULPRimeParameters ntruLPrimeParameter) {
+    private static AsymmetricCipherKeyPair generateNtruLPRimeKeyPair(NTRULPRimeParameters ntruLPrimeParameter) {
         NTRULPRimeKeyPairGenerator keyPairGenerator = new NTRULPRimeKeyPairGenerator();
         keyPairGenerator.init(new NTRULPRimeKeyGenerationParameters(new SecureRandom(), ntruLPrimeParameter));
         AsymmetricCipherKeyPair kp = keyPairGenerator.generateKeyPair();
         return kp;
     }
 
-    private static AsymmetricCipherKeyPair generateNtruPrimeKeyPair(SNTRUPrimeParameters sntruPrimeParameter) {
-        SNTRUPrimeKeyPairGenerator keyPairGenerator = new SNTRUPrimeKeyPairGenerator();
-        keyPairGenerator.init(new SNTRUPrimeKeyGenerationParameters(new SecureRandom(), sntruPrimeParameter));
-        AsymmetricCipherKeyPair kp = keyPairGenerator.generateKeyPair();
-        return kp;
-    }
-
-    private static SecretWithEncapsulation pqcNtruPrimeGenerateSecretWithEncapsulation(AsymmetricKeyParameter publicKey) {
+    private static SecretWithEncapsulation pqcNtruLPRimeGenerateSecretWithEncapsulation(AsymmetricKeyParameter publicKey) {
         NTRULPRimeKEMGenerator kemGenerator = new NTRULPRimeKEMGenerator(new SecureRandom());
         SecretWithEncapsulation secretEncapsulation = kemGenerator.generateEncapsulated(publicKey);
         return secretEncapsulation;
     }
 
-    private static SecretWithEncapsulation pqcNtruPrimeGenerateSecretWithEncapsulationOrg(AsymmetricKeyParameter publicKey) {
-        SNTRUPrimeKEMGenerator kemGenerator = new SNTRUPrimeKEMGenerator(new SecureRandom());
-        SecretWithEncapsulation secretEncapsulation = kemGenerator.generateEncapsulated(publicKey);
-        return secretEncapsulation;
-    }
-
-    private static byte[] pqcNtruPrimeExtractSecretWithEncapsulation(AsymmetricKeyParameter privateKey, byte[] secretToDecrypt) {
+    private static byte[] pqcNtruLRimeExtractSecretWithEncapsulation(AsymmetricKeyParameter privateKey, byte[] secretToDecrypt) {
         NTRULPRimeKEMExtractor kemExtractor = new NTRULPRimeKEMExtractor((NTRULPRimePrivateKeyParameters) privateKey);
         return kemExtractor.extractSecret(secretToDecrypt);
     }
 
-    private static byte[] pqcNtruPrimeExtractSecretWithEncapsulationOrg(AsymmetricKeyParameter privateKey, byte[] secretToDecrypt) {
-        SNTRUPrimeKEMExtractor kemExtractor = new SNTRUPrimeKEMExtractor((SNTRUPrimePrivateKeyParameters)privateKey);
-        return kemExtractor.extractSecret(secretToDecrypt);
+    private static AsymmetricKeyParameter getNtruLPRimePrivateKeyFromEncoded(byte[] enca, byte[] pk, byte[] rho, byte[] hash, NTRULPRimeParameters ntruLPrimeParameter) {
+        return new NTRULPRimePrivateKeyParameters(ntruLPrimeParameter, enca, pk, rho, hash);
     }
 
-    //private static AsymmetricKeyParameter getNtruPrimePrivateKeyFromEncoded(byte[] f, byte[] ginv, byte[] pk, byte[] rho, byte[] hash, NTRULPRimeParameters ntruLPRimeParameter) {
-    private static AsymmetricKeyParameter getNtruPrimePrivateKeyFromEncoded(byte[] enc, byte[] pk, byte[] rho, byte[] hash, NTRULPRimeParameters ntruLPRimeParameter) {
-        return new NTRULPRimePrivateKeyParameters(ntruLPRimeParameter, enc, pk, rho, hash);
-    }
-
-    private static AsymmetricKeyParameter getNtruLPrimePrivateKeyFromEncoded(byte[] encodedKey) {
-        try {
-            //PrivateKeyFactory keyFactory = new PrivateKeyFactory("NTRULPRIME", "BCPQC");
-            AsymmetricKeyParameter keyFactory = PrivateKeyFactory.createKey(encodedKey);
-            return (AsymmetricKeyParameter) keyFactory;
-            //PKCS8EncodedKeySpec pkcs8EncodedKeySpec = new PKCS8EncodedKeySpec(encodedKey);
-            //PrivateKey privateKey = keyFactory.generatePrivate(pkcs8EncodedKeySpec);
-            //return (AsymmetricKeyParameter) privateKey;
-        //} catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidKeySpecException | IOException e) {
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    private static AsymmetricKeyParameter getNtruLPrimePublicKeyFromEncoded(byte[] encodedKey) {
-        try {
-            AsymmetricKeyParameter keyFactory = PublicKeyFactory.createKey(encodedKey);
-            //KeyFactory keyFactory = KeyFactory.getInstance("NTRULPRIME", "BCPQC");
-            //X509EncodedKeySpec x509EncodedKeySpec = new X509EncodedKeySpec(encodedKey);
-            //PublicKey publicKey = keyFactory.generatePublic(x509EncodedKeySpec);
-            //return (AsymmetricKeyParameter) publicKey;
-            return keyFactory;
-        //} catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidKeySpecException | IOException e) {
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    private static AsymmetricKeyParameter getNtruPrimePublicKeyFromEncoded(byte[] encodedKey, SNTRUPrimeParameters sntruPrimeParameter) {
-        return new SNTRUPrimePublicKeyParameters(sntruPrimeParameter, encodedKey);
+    private static AsymmetricKeyParameter getNtruLPRimePublicKeyFromEncoded(byte[] encodedKey, NTRULPRimeParameters ntruLPrimeParameter) {
+        return new NTRULPRimePublicKeyParameters(ntruLPrimeParameter, encodedKey);
     }
 
     private static String bytesToHex(byte[] bytes) {

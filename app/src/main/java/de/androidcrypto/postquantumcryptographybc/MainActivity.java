@@ -141,9 +141,9 @@ public class MainActivity extends AppCompatActivity {
         PqcSaberKem.main(null); // round 3 candidate
         PqcNtruKem.main(null); // round 3 candidate
 */
-        //PqcNtruPrimeKem.main(null);
-        //PqcNtruLPRimeKem.main(null);
-        PqcNtruLPRimeKemSo2.main(null);
+        //PqcSNtruPrimeKem.main(null);
+        PqcNtruLPRimeKem.main(null);
+        //PqcNtruLPRimeKemSo2.main(null);
         // signatures
         /*
         PqcChrystalsDilithiumBcSignature.main(null);
