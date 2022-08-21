@@ -1,0 +1,51 @@
+
+so issue:
+https://github.com/bcgit/bc-java/issues/1213
+
+Missing modifiers in several NTRU-PQC classes (e.g. BCNTRULPRimePrivateKey.java and BCNTRULPRimePublicKey.java)
+
+Dear BC-Team,
+I'm trying to rebuild the private and public keys for the PQC algorithms "SNtruPrime" and "NtruLPRime". I found that some
+methods are not available because the "public" modifier ist missing. Using Reflection I could retrieve the values and the
+key rebuilding is working as expected.
+
+Kindly add the "public" modifier to these methods:
+
+```
+https://github.com/bcgit/bc-java/blob/master/prov/src/main/java/org/bouncycastle/pqc/jcajce/provider/ntruprime/BCNTRULPRimePrivateKey.java
+    NTRULPRimePrivateKeyParameters getKeyParams()
+    {
+        return params;
+    }
+
+https://github.com/bcgit/bc-java/blob/master/prov/src/main/java/org/bouncycastle/pqc/jcajce/provider/ntruprime/BCNTRULPRimePublicKey.java
+    NTRULPRimePublicKeyParameters getKeyParams()
+    {
+        return params;
+    }
+
+https://github.com/bcgit/bc-java/blob/master/prov/src/main/java/org/bouncycastle/pqc/jcajce/provider/ntruprime/BCSNTRUPrimePrivateKey.java
+    SNTRUPrimePrivateKeyParameters getKeyParams()
+    {
+        return params;
+    }
+
+https://github.com/bcgit/bc-java/blob/master/prov/src/main/java/org/bouncycastle/pqc/jcajce/provider/ntruprime/BCSNTRUPrimePublicKey.java
+    SNTRUPrimePublicKeyParameters getKeyParams()
+    {
+        return params;
+    }
+
+Btw: when editing you should change the comment in the private key classes, looks like a copy & paste error:
+
+    /**
+     * Compare this SPHINCS-256 private key with another object.
+     *
+     * @param o the other object
+     * @return the result of the comparison
+     */
+public boolean equals(Object o)
+...
+```
+
+Greetings and thanks, Michael

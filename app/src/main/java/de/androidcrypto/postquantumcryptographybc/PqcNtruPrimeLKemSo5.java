@@ -1,6 +1,8 @@
 package de.androidcrypto.postquantumcryptographybc;
 
+
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
+import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
 import org.bouncycastle.crypto.SecretWithEncapsulation;
 import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
@@ -9,11 +11,13 @@ import org.bouncycastle.pqc.crypto.ntruprime.NTRULPRimeKEMGenerator;
 import org.bouncycastle.pqc.crypto.ntruprime.NTRULPRimeKeyGenerationParameters;
 import org.bouncycastle.pqc.crypto.ntruprime.NTRULPRimeKeyPairGenerator;
 import org.bouncycastle.pqc.crypto.ntruprime.NTRULPRimeParameters;
-import org.bouncycastle.pqc.crypto.ntruprime.NTRULPRimePrivateKeyParameters;
-import org.bouncycastle.pqc.crypto.ntruprime.NTRULPRimePublicKeyParameters;
+//import org.bouncycastle.pqc.crypto.ntruprime.NTRULPRimePrivateKeyParameters;
 import org.bouncycastle.pqc.crypto.util.PrivateKeyInfoFactory;
+//import org.bouncycastle.pqc.jcajce.provider.ntruprime.SubjectPublicKeyInfoFactory;
+import org.bouncycastle.pqc.crypto.util.SubjectPublicKeyInfoFactory;
 import org.bouncycastle.pqc.jcajce.provider.BouncyCastlePQCProvider;
 import org.bouncycastle.pqc.jcajce.provider.ntruprime2.BCNTRULPRimePrivateKey;
+import org.bouncycastle.pqc.jcajce.provider.ntruprime2.BCNTRULPRimePublicKey;
 
 import java.io.IOException;
 import java.security.KeyFactory;
@@ -27,7 +31,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
-public class PqcNtruPrimeLKemSo4 {
+public class PqcNtruPrimeLKemSo5 {
 
 
     public static void main(String[] args) {
@@ -51,6 +55,72 @@ public class PqcNtruPrimeLKemSo4 {
         AsymmetricKeyParameter privateKeyOriginal = keyPair.getPrivate();
         AsymmetricKeyParameter publicKeyOriginal = keyPair.getPublic();
 
+        System.out.println("### using BCNTRULPRimePrivateKey ###");
+        PrivateKeyInfo privateKeyInfoOriginal = null;
+        SubjectPublicKeyInfo subjectPublicKeyInfoOriginal = null;
+        BCNTRULPRimePrivateKey privateKeyLoadN;
+        BCNTRULPRimePublicKey publicKeyLoadN;
+
+        try {
+            System.out.println("generate a BCNTRULPRimePrivateKey");
+            // https://github.com/bcgit/bc-java/blob/master/prov/src/main/java/org/bouncycastle/pqc/jcajce/provider/ntruprime/BCNTRULPRimePrivateKey.java
+            privateKeyInfoOriginal = PrivateKeyInfoFactory.createPrivateKeyInfo(privateKeyOriginal);
+            BCNTRULPRimePrivateKey bcntrulpRimePrivateKeyOriginal = new BCNTRULPRimePrivateKey(privateKeyInfoOriginal);
+            subjectPublicKeyInfoOriginal = SubjectPublicKeyInfoFactory.createSubjectPublicKeyInfo(publicKeyOriginal);
+            BCNTRULPRimePublicKey bcntrulpRimePublicKeyOriginal = new BCNTRULPRimePublicKey(subjectPublicKeyInfoOriginal);
+            if (bcntrulpRimePrivateKeyOriginal == null) {
+                System.out.println("bcntrulpRimePrivateKeyOriginal == null");
+                return;
+            }
+            byte[] bcntrulpRimePrivateKeyOriginalByte = bcntrulpRimePrivateKeyOriginal.getEncoded();
+            System.out.println("bcntrulpRimePrivateKeyOriginalByte: " + bytesToHex(bcntrulpRimePrivateKeyOriginalByte));
+            KeyFactory keyFactory = KeyFactory.getInstance("NTRULPRIME", "BCPQC");
+            PKCS8EncodedKeySpec pkcs8EncodedKeySpec = new PKCS8EncodedKeySpec(bcntrulpRimePrivateKeyOriginalByte);
+            PrivateKey privateKey = keyFactory.generatePrivate(pkcs8EncodedKeySpec);
+            privateKeyLoadN = (org.bouncycastle.pqc.jcajce.provider.ntruprime2.BCNTRULPRimePrivateKey) privateKey;
+
+            System.out.println("privateKeyLoad: " + privateKeyLoadN.getEncoded().length +
+                    " " + privateKeyLoadN);
+            System.out.println("generate a BCNTRULPRimePublicKey");
+            // https://github.com/bcgit/bc-java/blob/master/prov/src/main/java/org/bouncycastle/pqc/jcajce/provider/ntruprime/BCNTRULPRimePublicKey.java
+            if (bcntrulpRimePublicKeyOriginal == null) {
+                System.out.println("bcntrulpRimePublicKeyOriginal == null");
+                return;
+            }
+            byte[] bcntrulpRimePublicKeyOriginalByte = bcntrulpRimePublicKeyOriginal.getEncoded();
+            System.out.println("bcntrulpRimePublicKeyOriginalByte: " + bytesToHex(bcntrulpRimePublicKeyOriginalByte));
+            //KeyFactory keyFactory = KeyFactory.getInstance("NTRULPRIME", "BCPQC");
+            X509EncodedKeySpec x509EncodedKeySpec = new X509EncodedKeySpec(bcntrulpRimePublicKeyOriginalByte);
+            PublicKey publicKey = keyFactory.generatePublic(x509EncodedKeySpec);
+            publicKeyLoadN = (org.bouncycastle.pqc.jcajce.provider.ntruprime2.BCNTRULPRimePublicKey) publicKey;
+            System.out.println("publicKeyLoadN: " + publicKeyLoadN.getEncoded().length +
+                    " "  + publicKeyLoadN);
+
+            SecretWithEncapsulation secretKeyWithEncapsulation = pqcNtruLPRimeGenerateSecretWithEncapsulation(publicKeyOriginal);
+            // this is the encryption key for e.g. aes encryption
+            byte[] encryptionKey = secretKeyWithEncapsulation.getSecret();
+            System.out.println("encryption key length: " + encryptionKey.length + " key: " + bytesToHex(encryptionKey));
+            // this is the encapsulated key that is send to the receiver
+            byte[] encapsulatedKey = secretKeyWithEncapsulation.getEncapsulation();
+            byte[] decryptedKey = pqcNtruLRimeExtractSecretWithEncapsulationR(privateKeyLoadN, encapsulatedKey);
+            System.out.println("decryption key length: " + decryptedKey.length + " key: " + bytesToHex(decryptedKey));
+
+            System.out.println("now trying to encapsulate a key with the rebuild private key");
+            SecretWithEncapsulation secretKeyWithEncapsulationR = pqcNtruLPRimeGenerateSecretWithEncapsulationR(publicKeyLoadN);
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (NoSuchProviderException e) {
+            e.printStackTrace();
+        } catch (InvalidKeySpecException e) {
+            e.printStackTrace();
+        }
+
+        //System.exit(0);
+/*
         // storing the key as byte array
         System.out.println("storing the keys as byte array");
         byte[] privateKeyByte = ((NTRULPRimePrivateKeyParameters) keyPair.getPrivate()).getEncoded();
@@ -133,24 +203,41 @@ public class PqcNtruPrimeLKemSo4 {
                 e.printStackTrace();
             }
 
+
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         System.out.println("*** TRYING TO use PrivateKeyInfo END ***");
+
+ */
     }
 
+/*
+    private static AsymmetricKeyParameter getNtruLPRimePrivateKeyFromEncoded(byte[] enca, byte[] pk, byte[] rho, byte[] hash, NTRULPRimeParameters ntruLPrimeParameter) {
+        return new NTRULPRimePrivateKeyParameters(ntruLPrimeParameter, enca, pk, rho, hash);
+    }
+*/
     private static SecretWithEncapsulation pqcNtruLPRimeGenerateSecretWithEncapsulation(AsymmetricKeyParameter publicKey) {
         NTRULPRimeKEMGenerator kemGenerator = new NTRULPRimeKEMGenerator(new SecureRandom());
         SecretWithEncapsulation secretEncapsulation = kemGenerator.generateEncapsulated(publicKey);
         return secretEncapsulation;
     }
 
+    private static SecretWithEncapsulation pqcNtruLPRimeGenerateSecretWithEncapsulationR(org.bouncycastle.pqc.jcajce.provider.ntruprime2.BCNTRULPRimePublicKey publicKey) {
+        NTRULPRimeKEMGenerator kemGenerator = new NTRULPRimeKEMGenerator(new SecureRandom());
+        SecretWithEncapsulation secretEncapsulation = kemGenerator.generateEncapsulated(publicKey.getKeyParams());
+        return secretEncapsulation;
+    }
+
+    /*
     private static byte[] pqcNtruLRimeExtractSecretWithEncapsulation(AsymmetricKeyParameter privateKey, byte[] secretToDecrypt) {
         NTRULPRimeKEMExtractor kemExtractor = new NTRULPRimeKEMExtractor((NTRULPRimePrivateKeyParameters) privateKey);
         return kemExtractor.extractSecret(secretToDecrypt);
     }
+*/
 
-    private static byte[] pqcNtruLRimeExtractSecretWithEncapsulationR(BCNTRULPRimePrivateKey privateKey, byte[] secretToDecrypt) {
+    private static byte[] pqcNtruLRimeExtractSecretWithEncapsulationR(org.bouncycastle.pqc.jcajce.provider.ntruprime2.BCNTRULPRimePrivateKey privateKey, byte[] secretToDecrypt) {
         NTRULPRimeKEMExtractor kemExtractor = new NTRULPRimeKEMExtractor(privateKey.getKeyParams());
         return kemExtractor.extractSecret(secretToDecrypt);
     }

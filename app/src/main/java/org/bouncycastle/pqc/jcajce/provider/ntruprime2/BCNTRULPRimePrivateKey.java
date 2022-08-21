@@ -1,4 +1,4 @@
-package org.bouncycastle.pqc.jcajce.provider.ntruprime;
+package org.bouncycastle.pqc.jcajce.provider.ntruprime2;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -14,7 +14,7 @@ import org.bouncycastle.pqc.jcajce.interfaces.NTRULPRimeKey;
 import org.bouncycastle.pqc.jcajce.spec.NTRULPRimeParameterSpec;
 import org.bouncycastle.util.Arrays;
 
-public class BCNTRULPRimePrivateKey1 extends BCNTRULPRimePrivateKey
+public class BCNTRULPRimePrivateKey
         implements PrivateKey, NTRULPRimeKey
 {
     private static final long serialVersionUID = 1L;
@@ -22,18 +22,15 @@ public class BCNTRULPRimePrivateKey1 extends BCNTRULPRimePrivateKey
     private transient NTRULPRimePrivateKeyParameters params;
     private transient ASN1Set attributes;
 
-    public BCNTRULPRimePrivateKey1(
+    public BCNTRULPRimePrivateKey(
             NTRULPRimePrivateKeyParameters params)
     {
-        this();
-
         this.params = params;
     }
 
-    public BCNTRULPRimePrivateKey1(PrivateKeyInfo keyInfo)
+    public BCNTRULPRimePrivateKey(PrivateKeyInfo keyInfo)
             throws IOException
     {
-        super();
         init(keyInfo);
     }
 
@@ -57,9 +54,9 @@ public class BCNTRULPRimePrivateKey1 extends BCNTRULPRimePrivateKey
             return true;
         }
 
-        if (o instanceof BCNTRULPRimePrivateKey1)
+        if (o instanceof BCNTRULPRimePrivateKey)
         {
-            BCNTRULPRimePrivateKey1 otherKey = (BCNTRULPRimePrivateKey1)o;
+            BCNTRULPRimePrivateKey otherKey = (BCNTRULPRimePrivateKey)o;
 
             return Arrays.areEqual(params.getEncoded(), otherKey.params.getEncoded());
         }

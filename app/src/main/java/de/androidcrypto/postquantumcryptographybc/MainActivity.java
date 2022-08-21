@@ -95,7 +95,7 @@ public class MainActivity extends AppCompatActivity {
         printlnX("");
         printlnX("see in your console output for results, it may takes some minutes to complete");
 
-        PqcNtruPrimeLKemSo4.main(null);
+        PqcNtruPrimeLKemSo6.main(null);
         /*
         // kem's
         PqcChrystalsKyberKem.main(null);
