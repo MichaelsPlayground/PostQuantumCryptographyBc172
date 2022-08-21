@@ -97,6 +97,7 @@ public class PqcNtruLPRimeKem {
             AsymmetricKeyParameter publicKey = keyPair.getPublic();
 
             // storing the key as byte array
+            // todo find a better way to rebuild the keys from the encoded form
             byte[] privateKeyByte = ((NTRULPRimePrivateKeyParameters) privateKey).getEncoded();
             byte[] privateKeyByteEnca = ((NTRULPRimePrivateKeyParameters)privateKey).getEnca();
             byte[] privateKeyBytePk = ((NTRULPRimePrivateKeyParameters)privateKey).getPk();
