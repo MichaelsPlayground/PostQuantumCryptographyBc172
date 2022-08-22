@@ -95,7 +95,23 @@ public class MainActivity extends AppCompatActivity {
         printlnX("");
         printlnX("see in your console output for results, it may takes some minutes to complete");
 
-        PqcNtruPrimeLKemSo6.main(null);
+        //PqcNtruPrimeLKemSo6.main(null);
+        PqcNtruPrimeLKemSo7.main(null);
+
+        NTRULPRimeKeyPairGenerator nt = new NTRULPRimeKeyPairGenerator("test");
+        try {
+            //nt.runKeyPairEncoding();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        /*
+        NTRULPRimeKeyPairGeneratorTest nt = new NTRULPRimeKeyPairGeneratorTest();
+        try {
+            nt.testKeyPairEncoding();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+         */
         /*
         // kem's
         PqcChrystalsKyberKem.main(null);
