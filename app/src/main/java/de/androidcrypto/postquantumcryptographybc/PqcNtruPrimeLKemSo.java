@@ -74,6 +74,7 @@ public class PqcNtruPrimeLKemSo {
         if (publicKeyLoad != null) {
             System.out.println("publicKeyLoad: " + publicKeyLoad.toString());
         }
+
     }
 }
 
