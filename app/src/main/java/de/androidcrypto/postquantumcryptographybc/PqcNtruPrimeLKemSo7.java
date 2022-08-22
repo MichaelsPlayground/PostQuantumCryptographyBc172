@@ -72,8 +72,8 @@ public class PqcNtruPrimeLKemSo7 {
 
         //byte[] encodedPrivateKey = getEncodedKey(privateKeyOriginal);
         //System.out.println("encodedPrivateKey length: " + encodedPrivateKey.length);
-        //byte[] encodedPublicKey = getEncodedKey(publicKeyOriginal);
-        //System.out.println("encodedPublicKey length: " + encodedPublicKey.length);
+        byte[] encodedPublicKey = getEncodedKey(publicKeyOriginal);
+        System.out.println("encodedPublicKey length: " + encodedPublicKey.length);
         //System.out.println("encodedPrivateKey length: " + privateKeyOriginal.length);
         //System.out.println("encodedPublicKey length: " + encodedPublicKey.length);
 
@@ -166,7 +166,6 @@ public class PqcNtruPrimeLKemSo7 {
             return null;
         }
     }
-
 
     private static SecretWithEncapsulation pqcNtruLPRimeGenerateSecretWithEncapsulation(AsymmetricKeyParameter publicKey) {
         NTRULPRimeKEMGenerator kemGenerator = new NTRULPRimeKEMGenerator(new SecureRandom());

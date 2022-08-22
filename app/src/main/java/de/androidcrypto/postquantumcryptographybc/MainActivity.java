@@ -97,21 +97,23 @@ public class MainActivity extends AppCompatActivity {
 
         //PqcNtruPrimeLKemSo6.main(null);
         PqcNtruPrimeLKemSo7.main(null);
-
+/*
         NTRULPRimeKeyPairGenerator nt = new NTRULPRimeKeyPairGenerator("test");
         try {
-            //nt.runKeyPairEncoding();
+            nt.runKeyPairEncoding();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        /*
+
+ */
+/*
         NTRULPRimeKeyPairGeneratorTest nt = new NTRULPRimeKeyPairGeneratorTest();
         try {
             nt.testKeyPairEncoding();
         } catch (Exception e) {
             e.printStackTrace();
         }
-         */
+*/
         /*
         // kem's
         PqcChrystalsKyberKem.main(null);
