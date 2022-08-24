@@ -83,6 +83,9 @@ public class PqcNtruPrimeLKemSo7 {
         BCNTRULPRimePrivateKey privateKeyLoadN;
         BCNTRULPRimePublicKey publicKeyLoadN;
 
+        // BIKEPublicKeyParameters generatedPk = (BIKEPublicKeyParameters)PublicKeyFactory.createKey(SubjectPublicKeyInfoFactory.createSubjectPublicKeyInfo((BIKEPublicKeyParameters)pair.getPublic()));
+        // BIKEPrivateKeyParameters generatedSk = (BIKEPrivateKeyParameters)PrivateKeyFactory.createKey(PrivateKeyInfoFactory.createPrivateKeyInfo((BIKEPrivateKeyParameters)pair.getPrivate()));
+
         try {
             System.out.println("generate a BCNTRULPRimePrivateKey");
             // https://github.com/bcgit/bc-java/blob/master/prov/src/main/java/org/bouncycastle/pqc/jcajce/provider/ntruprime/BCNTRULPRimePrivateKey.java

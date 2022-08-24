@@ -1,10 +1,10 @@
 # Post Quantum Cryptography wwith Bouncy Castle
 
-This version uses a Beta version of Bouncy Castle (1.72 Beta 13) to use most of the PQC finalists and candidates.
+This version uses a Beta version of Bouncy Castle (1.72 Beta 15) to use most of the PQC finalists and candidates.
 
 see the Bouncy Castle release notes: https://github.com/bcgit/bc-java/blob/master/docs/releasenotes.html
 
-https://downloads.bouncycastle.org/betas/bcprov-ext-jdk18on-172b13.jar 
+https://downloads.bouncycastle.org/betas/bcprov-ext-jdk18on-172b15.jar 
 
 Official NIST homepage: https://csrc.nist.gov/Projects/post-quantum-cryptography
 
@@ -49,7 +49,7 @@ Round 4 searching for alternatives: https://csrc.nist.gov/Projects/post-quantum-
 
 ```plaintext
 Round 4 Submissions: Public-key Encryption and Key-establishment Algorithms
-BIKE (not available here)
+BIKE
 Classic McEliece
 HQC (not available here)
 SIKE (not available here) - Note: this algorithm seems to get broken
@@ -61,6 +61,8 @@ Public-key Encryption and Key-establishment Algorithms
 Classic McEliece (merger of Classic McEliece and NTS-KEM): https://classic.mceliece.org/
 CRYSTALS-KYBER: https://pq-crystals.org/
 NTRU: https://ntru.org/
+NTRULPrime
+SNTRUPrime
 SABER: https://www.esat.kuleuven.be/cosic/pqcrypto/saber/
 
 Alternate Candidates: Public-key Encryption and Key-establishment Algorithms

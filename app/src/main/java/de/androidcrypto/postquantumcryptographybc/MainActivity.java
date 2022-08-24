@@ -95,42 +95,25 @@ public class MainActivity extends AppCompatActivity {
         printlnX("");
         printlnX("see in your console output for results, it may takes some minutes to complete");
 
-        //PqcNtruPrimeLKemSo6.main(null);
-        PqcNtruPrimeLKemSo7.main(null);
+        PqcNtruPrimeLKemSo8.main(null);
 /*
-        NTRULPRimeKeyPairGenerator nt = new NTRULPRimeKeyPairGenerator("test");
-        try {
-            nt.runKeyPairEncoding();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
- */
-/*
-        NTRULPRimeKeyPairGeneratorTest nt = new NTRULPRimeKeyPairGeneratorTest();
-        try {
-            nt.testKeyPairEncoding();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-*/
-        /*
         // kem's
         PqcChrystalsKyberKem.main(null);
         PqcClassicMcElieceKem.main(null); // 6 parameter sets to run !
         PqcFrodoKem.main(null); // round 3 candidate
         PqcSaberKem.main(null); // round 3 candidate
         PqcNtruKem.main(null); // round 3 candidate
+        PqcBikeKem.main(null); // round 4 candidate
         PqcSNtruPrimeKem.main(null);
-        PqcNtruLPRimeKem.main(null);
+        PqcNtruLPRimeKem.main(null); // use this
+        PqcNtruLPRimeReflectionKem.main(null);
         // signatures
         PqcChrystalsDilithiumBcSignature.main(null);
         PqcFalconSignature.main((null));
         PqcSphincsPlusSignature.main(null); // 24 parameter sets to run !
         PqcPicnicSignature.main(null); // round 3 candidate
         PqcRainbowSignature.main(null); // round 3 candidate
-
-         */
+*/
     }
 
     private static String getBouncyCastleVersion() {
