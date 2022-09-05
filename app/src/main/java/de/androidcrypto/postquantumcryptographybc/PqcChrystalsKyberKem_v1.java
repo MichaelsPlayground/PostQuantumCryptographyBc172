@@ -5,6 +5,7 @@ import org.bouncycastle.jcajce.spec.KEMExtractSpec;
 import org.bouncycastle.jcajce.spec.KEMGenerateSpec;
 import org.bouncycastle.pqc.jcajce.provider.BouncyCastlePQCProvider;
 import org.bouncycastle.pqc.jcajce.spec.KyberParameterSpec;
+import org.bouncycastle.pqc.jcajce.spec.SABERParameterSpec;
 import org.bouncycastle.util.Arrays;
 
 import java.security.InvalidAlgorithmParameterException;
@@ -23,23 +24,20 @@ import java.security.spec.X509EncodedKeySpec;
 
 import javax.crypto.KeyGenerator;
 
-public class PqcChrystalsKyberKem {
+public class PqcChrystalsKyberKem_v1 {
 
 
     public static void main(String[] args) {
-        // Security.addProvider(new BouncyCastleProvider());
+        //Security.addProvider(new BouncyCastleProvider());
         // we do need the regular Bouncy Castle file that includes the PQC provider
         // get Bouncy Castle here: https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15on
         // tested with BC version 1.72 Beta 10
         if (Security.getProvider("BCPQC") == null) {
             Security.addProvider(new BouncyCastlePQCProvider());
         }
-        runChrystalsKyberKem(false);
-    }
+        System.out.println("PQC Chrystals-Kyber kem");
 
-    public static String runChrystalsKyberKem(boolean truncateKeyOutput) {
-        String out = "PQC Chrystals-Kyber kem";
-        out += "\n" + "\n************************************\n" +
+        System.out.println("\n************************************\n" +
                 "* # # SERIOUS SECURITY WARNING # # *\n" +
                 "* This program is a CONCEPT STUDY  *\n" +
                 "* for the algorithm                *\n" +
@@ -52,10 +50,10 @@ public class PqcChrystalsKyberKem {
                 "*                                  *\n" +
                 "*    DO NOT USE THE PROGRAM IN     *\n" +
                 "*    ANY PRODUCTION ENVIRONMENT    *\n" +
-                "************************************";
+                "************************************");
 
         // as there are 3 parameter sets available the program runs all of them
-        KyberParameterSpec[] kyberParameterSpecs = {
+        KyberParameterSpec[] kyberParameterSpecs =  {
                 KyberParameterSpec.kyber512,
                 KyberParameterSpec.kyber768,
                 KyberParameterSpec.kyber1024
@@ -75,7 +73,7 @@ public class PqcChrystalsKyberKem {
             KyberParameterSpec kyberParameterSpec = kyberParameterSpecs[i];
             String kyberParameterSpecName = kyberParameterSpec.getName();
             parameterSpecName[i] = kyberParameterSpecName;
-            out += "\n" + "\nChrystals-Kyber KEM with parameterset " + kyberParameterSpecName;
+            System.out.println("\nChrystals-Kyber KEM with parameterset " + kyberParameterSpecName);
             KeyPair keyPair = generateChrystalsKyberKeyPair(kyberParameterSpec);
 
             // get private and public key
@@ -85,8 +83,8 @@ public class PqcChrystalsKyberKem {
             // storing the key as byte array
             byte[] privateKeyByte = privateKey.getEncoded();
             byte[] publicKeyByte = publicKey.getEncoded();
-            out += "\n" + "\ngenerated private key length: " + privateKeyByte.length;
-            out += "\n" + "generated public key length:  " + publicKeyByte.length;
+            System.out.println("\ngenerated private key length: " + privateKeyByte.length);
+            System.out.println("generated public key length:  " + publicKeyByte.length);
             privateKeyLength[i] = privateKeyByte.length;
             publicKeyLength[i] = publicKeyByte.length;
 
@@ -95,52 +93,48 @@ public class PqcChrystalsKyberKem {
             PublicKey publicKeyLoad = getChrystalsKyberPublicKeyFromEncoded(publicKeyByte);
 
             // generate the encryption key and the encapsulated key
-            out += "\n" + "\nEncryption side: generate the encryption key and the encapsulated key";
+            System.out.println("\nEncryption side: generate the encryption key and the encapsulated key");
             SecretKeyWithEncapsulation secretKeyWithEncapsulationSender = pqcGenerateChrystalsKyberEncryptionKey(publicKeyLoad);
             byte[] encryptionKey = secretKeyWithEncapsulationSender.getEncoded();
-            out += "\n" + "encryption key length: " + encryptionKey.length
-                    + " key: " + bytesToHex(secretKeyWithEncapsulationSender.getEncoded());
+            System.out.println("encryption key length: " + encryptionKey.length
+                    + " key: " + bytesToHex(secretKeyWithEncapsulationSender.getEncoded()));
             byte[] encapsulatedKey = secretKeyWithEncapsulationSender.getEncapsulation();
-            //out += "\n" + "encapsulated key length: " + encapsulatedKey.length + " key: " + bytesToHex(encapsulatedKey);
-            out += "\n" + "encapsulated key length: " + encapsulatedKey.length + " key: " + (truncateKeyOutput ?shortenString(bytesToHex(encapsulatedKey)):bytesToHex(encapsulatedKey));
-
+            System.out.println("encapsulated key length: " + encapsulatedKey.length + " key: " + bytesToHex(encapsulatedKey));
             encryptionKeyLength[i] = encryptionKey.length;
             encapsulatedKeyLength[i] = encapsulatedKey.length;
 
-            out += "\n" + "\nDecryption side: receive the encapsulated key and generate the decryption key";
+            System.out.println("\nDecryption side: receive the encapsulated key and generate the decryption key");
             byte[] decryptionKey = pqcGenerateChrystalsKyberDecryptionKey(privateKeyLoad, encapsulatedKey);
-            out += "\n" + "decryption key length: " + decryptionKey.length + " key: " + bytesToHex(decryptionKey);
+            System.out.println("decryption key length: " + decryptionKey.length + " key: " + bytesToHex(decryptionKey));
             boolean keysAreEqual = Arrays.areEqual(encryptionKey, decryptionKey);
-            out += "\n" + "decryption key is equal to encryption key: " + keysAreEqual;
+            System.out.println("decryption key is equal to encryption key: " + keysAreEqual);
             encryptionKeysEquals[i] = keysAreEqual;
         }
 
-        out += "\n" + "\nTest results";
-        out += "\n" + "parameter spec name  priKL   pubKL encKL capKL  keyE" + "\n";
+        System.out.println("\nTest results");
+        System.out.println("parameter spec name  priKL   pubKL encKL capKL  keyE");
         for (int i = 0; i < nrOfSpecs; i++) {
-            String out1 = String.format("%-20s%6d%8d%6d%6d%6b%n", parameterSpecName[i], privateKeyLength[i], publicKeyLength[i], encryptionKeyLength[i], encapsulatedKeyLength[i], encryptionKeysEquals[i]);
-            //System.out.format("%-20s%6d%8d%6d%6d%6b%n", parameterSpecName[i], privateKeyLength[i], publicKeyLength[i], encryptionKeyLength[i], encapsulatedKeyLength[i], encryptionKeysEquals[i]);
-            //out += "\n" + out1;
-            out += out1;
-            //System.out.println(out1);
+             System.out.format("%-20s%6d%8d%6d%6d%6b%n", parameterSpecName[i], privateKeyLength[i], publicKeyLength[i], encryptionKeyLength[i], encapsulatedKeyLength[i], encryptionKeysEquals[i]);
         }
-        out += "\n" + "Legend: priKL privateKey length, pubKL publicKey length, encKL encryption key length, capKL encrapsulated key length, keyE encryption keys are equal\n";
-
-        return out;
-    }
-
-    private static String shortenString (String input) {
-        if (input != null && input.length() > 32) {
-            return input.substring(0, 32) + " ...";
-        } else {
-            return input;
-        }
+        System.out.println("Legend: priKL privateKey length, pubKL publicKey length, encKL encryption key length, capKL encrapsulated key length, keyE encryption keys are equal\n");
     }
 
     private static KeyPair generateChrystalsKyberKeyPair(KyberParameterSpec kyberParameterSpec) {
         try {
             KeyPairGenerator kpg = KeyPairGenerator.getInstance("KYBER", "BCPQC");
             kpg.initialize(kyberParameterSpec, new SecureRandom());
+            KeyPair kp = kpg.generateKeyPair();
+            return kp;
+        } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidAlgorithmParameterException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private static KeyPair generateSaberKeyPair(SABERParameterSpec saberParameterSpec) {
+        try {
+            KeyPairGenerator kpg = KeyPairGenerator.getInstance("SABER", "BCPQC");
+            kpg.initialize(saberParameterSpec, new SecureRandom());
             KeyPair kp = kpg.generateKeyPair();
             return kp;
         } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidAlgorithmParameterException e) {
@@ -175,6 +169,19 @@ public class PqcChrystalsKyberKem {
         }
     }
 
+    public static SecretKeyWithEncapsulation pqcGenerateSaberEncryptionKey(PublicKey publicKey) {
+        KeyGenerator keyGen = null;
+        try {
+            keyGen = KeyGenerator.getInstance("SABER", "BCPQC");
+            keyGen.init(new KEMGenerateSpec((PublicKey) publicKey, "AES"), new SecureRandom());
+            SecretKeyWithEncapsulation secEnc1 = (SecretKeyWithEncapsulation) keyGen.generateKey();
+            return secEnc1;
+        } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidAlgorithmParameterException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     private static PrivateKey getChrystalsKyberPrivateKeyFromEncoded(byte[] encodedKey) {
         PKCS8EncodedKeySpec pkcs8EncodedKeySpec = new PKCS8EncodedKeySpec(encodedKey);
         KeyFactory keyFactory = null;
@@ -192,6 +199,18 @@ public class PqcChrystalsKyberKem {
         try {
             KeyFactory keyFactory = KeyFactory.getInstance("KYBER", "BCPQC");
             return keyFactory.generatePublic(x509EncodedKeySpec);
+        } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidKeySpecException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+
+    private static PublicKey getSaberPublicKeyFromEncoded(byte[] encodedKey) {
+        X509EncodedKeySpec x509EncodedKeySpec = new X509EncodedKeySpec(encodedKey);
+        try {
+        KeyFactory keyFactory = KeyFactory.getInstance("SABER", "BCPQC");
+        return keyFactory.generatePublic(x509EncodedKeySpec);
         } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidKeySpecException e) {
             e.printStackTrace();
             return null;

@@ -15,7 +15,27 @@
         android:layout_marginTop="8dp"
         android:text="@string/consoleTitle"
         android:textColor="@color/black"
-        android:textSize="30sp" />
+        android:textSize="20sp" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/spinner"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="8dp"
+        android:hint="choose algorithm to run"
+        app:layout_constraintTop_toBottomOf="@+id/textView"
+        >
+
+        <AutoCompleteTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/chooseAlgorithm"
+            android:inputType="none">
+        </AutoCompleteTextView>
+    </com.google.android.material.textfield.TextInputLayout>
 
     <ScrollView
         android:id="@+id/scrollView"
@@ -28,7 +48,7 @@
         android:fadeScrollbars="false"
         android:fillViewport="true"
         android:scrollbars="vertical"
-        app:layout_constraintTop_toBottomOf="@id/textView">
+        app:layout_constraintTop_toBottomOf="@id/spinner">
 
         <TextView
             android:id="@+id/textviewConsole"
@@ -36,9 +56,9 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
             android:layout_marginEnd="2dp"
-            android:textSize="16sp"
+            android:textSize="12sp"
             android:textColor="@color/black"
-            android:fontFamily="@font/roboto_regular"
+            android:typeface="monospace"
             android:text="@string/textViewConsoleText"
             app:layout_constraintTop_toBottomOf="@+id/scrollView">
 
@@ -61,6 +81,7 @@
             android:text="@string/btnClearConsoleText"
             tools:ignore="ButtonStyle">
         </Button>
+
         <Button
             android:id="@+id/btnRunCode"
             android:layout_width="match_parent"

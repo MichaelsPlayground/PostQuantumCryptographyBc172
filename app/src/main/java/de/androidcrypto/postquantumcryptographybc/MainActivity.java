@@ -3,6 +3,9 @@ package de.androidcrypto.postquantumcryptographybc;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -19,7 +22,10 @@ public class MainActivity extends AppCompatActivity {
 
     TextView textViewConsole;
     String consoleText = "";
-    String APPTITLE = "change the application title here";
+    String APPTITLE = "PQC algorithms with Bouncy Castle";
+
+    AutoCompleteTextView chooseAlgorithm;
+    String choiceString;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +53,24 @@ public class MainActivity extends AppCompatActivity {
                 runMain();
             }
         });
+
+        String[] type = new String[]{"choose algorithm to run",
+                "Chrystals-Kyber KEM", "BIKE KEM", "FRODO KEM", "Coordinate", "Coordinate userinfo", "StreetView",
+                "Address", "Google navigation", "Email", "Application", "Target address"};
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(
+                this,
+                R.layout.drop_down_item,
+                type);
+
+        chooseAlgorithm = findViewById(R.id.chooseAlgorithm);
+        chooseAlgorithm.setAdapter(arrayAdapter);
+        chooseAlgorithm.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                String choiceString = chooseAlgorithm.getText().toString();
+            }
+        });
+
     }
 
     public void clearConsole() {
@@ -93,9 +117,13 @@ public class MainActivity extends AppCompatActivity {
         printlnX("BouncyCastle PQC version: " + getBouncyCastlePqcVersion());
 
         printlnX("");
-        printlnX("see in your console output for results, it may takes some minutes to complete");
 
         // kem's
+
+        //PqcChrystalsKyberKem.main(null);
+        printlnX(PqcChrystalsKyberKem.runChrystalsKyberKem(true));
+
+        /*
         PqcChrystalsKyberKem.main(null);
         PqcClassicMcElieceKem.main(null); // 6 parameter sets to run !
         PqcFrodoKem.main(null); // round 3 candidate
@@ -111,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
         PqcSphincsPlusSignature.main(null); // 24 parameter sets to run !
         PqcPicnicSignature.main(null); // round 3 candidate
         PqcRainbowSignature.main(null); // round 3 candidate
-
+*/
     }
 
     private static String getBouncyCastleVersion() {
