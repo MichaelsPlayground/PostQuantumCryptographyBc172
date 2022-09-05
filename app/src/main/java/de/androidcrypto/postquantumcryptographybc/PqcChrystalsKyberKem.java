@@ -34,11 +34,12 @@ public class PqcChrystalsKyberKem {
         if (Security.getProvider("BCPQC") == null) {
             Security.addProvider(new BouncyCastlePQCProvider());
         }
-        runChrystalsKyberKem(false);
+        String print = run(false);
+        System.out.println(print);
     }
 
-    public static String runChrystalsKyberKem(boolean truncateKeyOutput) {
-        String out = "PQC Chrystals-Kyber kem";
+    public static String run(boolean truncateKeyOutput) {
+        String out = "PQC Chrystals-Kyber KEM";
         out += "\n" + "\n************************************\n" +
                 "* # # SERIOUS SECURITY WARNING # # *\n" +
                 "* This program is a CONCEPT STUDY  *\n" +
@@ -101,7 +102,6 @@ public class PqcChrystalsKyberKem {
             out += "\n" + "encryption key length: " + encryptionKey.length
                     + " key: " + bytesToHex(secretKeyWithEncapsulationSender.getEncoded());
             byte[] encapsulatedKey = secretKeyWithEncapsulationSender.getEncapsulation();
-            //out += "\n" + "encapsulated key length: " + encapsulatedKey.length + " key: " + bytesToHex(encapsulatedKey);
             out += "\n" + "encapsulated key length: " + encapsulatedKey.length + " key: " + (truncateKeyOutput ?shortenString(bytesToHex(encapsulatedKey)):bytesToHex(encapsulatedKey));
 
             encryptionKeyLength[i] = encryptionKey.length;
@@ -119,10 +119,7 @@ public class PqcChrystalsKyberKem {
         out += "\n" + "parameter spec name  priKL   pubKL encKL capKL  keyE" + "\n";
         for (int i = 0; i < nrOfSpecs; i++) {
             String out1 = String.format("%-20s%6d%8d%6d%6d%6b%n", parameterSpecName[i], privateKeyLength[i], publicKeyLength[i], encryptionKeyLength[i], encapsulatedKeyLength[i], encryptionKeysEquals[i]);
-            //System.out.format("%-20s%6d%8d%6d%6d%6b%n", parameterSpecName[i], privateKeyLength[i], publicKeyLength[i], encryptionKeyLength[i], encapsulatedKeyLength[i], encryptionKeysEquals[i]);
-            //out += "\n" + out1;
             out += out1;
-            //System.out.println(out1);
         }
         out += "\n" + "Legend: priKL privateKey length, pubKL publicKey length, encKL encryption key length, capKL encrapsulated key length, keyE encryption keys are equal\n";
 

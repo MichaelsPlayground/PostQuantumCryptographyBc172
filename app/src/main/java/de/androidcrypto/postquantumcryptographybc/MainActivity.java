@@ -2,12 +2,15 @@ package de.androidcrypto.postquantumcryptographybc;
 
 import android.os.Build;
 import android.os.Bundle;
+import android.text.Html;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -68,9 +71,79 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 String choiceString = chooseAlgorithm.getText().toString();
+
+                switch (choiceString) {
+                    case "Chrystals-Kyber KEM": {
+                        initBouncyCastle();
+                        printlnX(PqcChrystalsKyberKem.run(true));
+                        break;
+                    }
+                    case "BIKE KEM": {
+                        runtimeWarning(view);
+                        initBouncyCastle();
+                        printlnX(PqcBikeKem.run(true));
+                        break;
+                    }
+                    case "StreetView": {
+
+                        break;
+                    }
+                    case "Email": {
+
+                        break;
+                    }
+                    case "Telefone number": {
+
+                        break;
+                    }
+                    case "Coordinate": {
+
+                        break;
+                    }
+                    case "Coordinate userinfo": {
+
+                        break;
+                    }
+                    case "Address": {
+
+                        break;
+                    }
+                    case "Google navigation": {
+
+                        break;
+                    }
+                    case "Application": {
+
+                        break;
+                    }
+                    default: {
+
+                        break;
+                    }
+                }
             }
         });
 
+    }
+
+    private void initBouncyCastle() {
+        // this way for adding bouncycastle to android
+        Security.removeProvider("BC");
+        // Confirm that positioning this provider at the end works for your needs!
+        Security.addProvider(new BouncyCastleProvider());
+        if (Security.getProvider("BCPQC") == null) {
+            Security.addProvider(new BouncyCastlePQCProvider());
+        }
+        printlnX("Android version: " + getAndroidVersion());
+        printlnX("BouncyCastle version: " + getBouncyCastleVersion());
+        printlnX("BouncyCastle PQC version: " + getBouncyCastlePqcVersion());
+    }
+
+    private void runtimeWarning(View view) {
+        String info = "It may take up to a minute to get results, be patient !";
+        Toast toast = Toast.makeText(view.getContext(), Html.fromHtml("<font color='#eFD0600' ><b>" + info + "</b></font>"), Toast.LENGTH_LONG);
+        toast.setGravity(Gravity.CENTER_VERTICAL,0,0);
+        toast.show();
     }
 
     public void clearConsole() {
@@ -115,13 +188,63 @@ public class MainActivity extends AppCompatActivity {
         printlnX("Android version: " + getAndroidVersion());
         printlnX("BouncyCastle version: " + getBouncyCastleVersion());
         printlnX("BouncyCastle PQC version: " + getBouncyCastlePqcVersion());
+// "Chrystals-Kyber KEM", "BIKE KEM", "FRODO KEM", "Coordinate", "Coordinate userinfo", "StreetView",
+//                "Address", "Google navigation", "Email", "Application", "Target address"};
+        switch (choiceString) {
+            case "Chrystals-Kyber KEM": {
+                printlnX(PqcChrystalsKyberKem.run(true));
+                break;
+            }
+            case "URI": {
+
+                break;
+            }
+            case "StreetView": {
+
+                break;
+            }
+            case "Email": {
+
+                break;
+            }
+            case "Telefone number": {
+
+                break;
+            }
+            case "Coordinate": {
+
+                break;
+            }
+            case "Coordinate userinfo": {
+
+                break;
+            }
+            case "Address": {
+
+                break;
+            }
+            case "Google navigation": {
+
+                break;
+            }
+            case "Application": {
+
+                break;
+            }
+            default: {
+
+                break;
+            }
+        }
+
+
 
         printlnX("");
 
         // kem's
 
         //PqcChrystalsKyberKem.main(null);
-        printlnX(PqcChrystalsKyberKem.runChrystalsKyberKem(true));
+
 
         /*
         PqcChrystalsKyberKem.main(null);
