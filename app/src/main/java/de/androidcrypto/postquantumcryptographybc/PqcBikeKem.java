@@ -3,10 +3,8 @@ package de.androidcrypto.postquantumcryptographybc;
 import org.bouncycastle.jcajce.SecretKeyWithEncapsulation;
 import org.bouncycastle.jcajce.spec.KEMExtractSpec;
 import org.bouncycastle.jcajce.spec.KEMGenerateSpec;
-import org.bouncycastle.pqc.crypto.bike.BIKEParameters;
 import org.bouncycastle.pqc.jcajce.provider.BouncyCastlePQCProvider;
 import org.bouncycastle.pqc.jcajce.spec.BIKEParameterSpec;
-import org.bouncycastle.pqc.jcajce.spec.FrodoParameterSpec;
 import org.bouncycastle.util.Arrays;
 
 import java.security.InvalidAlgorithmParameterException;

@@ -54,32 +54,4 @@
 
         </TextView>
     </ScrollView>
-
-    <LinearLayout
-        android:id="@+id/LinearLayout02"
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        android:layout_marginTop="16dp"
-        >
-        <Button
-            android:id="@+id/btnClearConsole"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_weight="1"
-            android:text="@string/btnClearConsoleText"
-            tools:ignore="ButtonStyle">
-        </Button>
-
-        <Button
-            android:id="@+id/btnRunCode"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:text="@string/btnRunCodeText">
-        </Button>
-    </LinearLayout>
 </LinearLayout>

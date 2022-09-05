@@ -21,7 +21,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
-public class PqcChrystalsDilithiumBcSignature {
+public class PqcChrystalsDilithiumSignature {
 
     // available in BC Beta 13
 
@@ -31,9 +31,16 @@ public class PqcChrystalsDilithiumBcSignature {
             Security.addProvider(new BouncyCastlePQCProvider());
         }
 
+        String print = run(false);
+        System.out.println(print);
+
         System.out.println("PQC Chrystals Dilithium signature (BC implementation)");
 
-        System.out.println("\n************************************\n" +
+        }
+
+    public static String run(boolean truncateSignatureOutput) {
+        String out = "PQC Chrystals Dilithium signature (BC implementation)";
+        out += "\n" + "\n************************************\n" +
                 "* # # SERIOUS SECURITY WARNING # # *\n" +
                 "* This program is a CONCEPT STUDY  *\n" +
                 "* for the algorithm                *\n" +
@@ -45,7 +52,7 @@ public class PqcChrystalsDilithiumBcSignature {
                 "*                                  *\n" +
                 "*    DO NOT USE THE PROGRAM IN     *\n" +
                 "*    ANY PRODUCTION ENVIRONMENT    *\n" +
-                "************************************");
+                "************************************";
 
         String dataToSignString = "The quick brown fox jumps over the lazy dog";
         byte[] dataToSign = dataToSignString.getBytes(StandardCharsets.UTF_8);
@@ -70,7 +77,7 @@ public class PqcChrystalsDilithiumBcSignature {
             DilithiumParameterSpec dilithiumParameterSpec = dilithiumParameterSpecs[i];
             String dilithiumParameterSpecName = dilithiumParameterSpec.getName();
             parameterSpecName[i] = dilithiumParameterSpecName;
-            System.out.println("\nChrystals Dilithium signature with parameterset " + dilithiumParameterSpecName);
+            out += "\n" + "\nChrystals Dilithium signature with parameterset " + dilithiumParameterSpecName;
             KeyPair keyPair = generateChrystalsDilithiumKeyPair(dilithiumParameterSpec);
 
             // get private and public key
@@ -80,8 +87,8 @@ public class PqcChrystalsDilithiumBcSignature {
             // storing the key as byte array
             byte[] privateKeyByte = privateKey.getEncoded();
             byte[] publicKeyByte = publicKey.getEncoded();
-            System.out.println("\ngenerated private key length: " + privateKeyByte.length);
-            System.out.println("generated public key length:  " + publicKeyByte.length);
+            out += "\n" + "\ngenerated private key length: " + privateKeyByte.length;
+            out += "\n" + "generated public key length:  " + publicKeyByte.length;
             privateKeyLength[i] = privateKeyByte.length;
             publicKeyLength[i] = publicKeyByte.length;
 
@@ -89,23 +96,33 @@ public class PqcChrystalsDilithiumBcSignature {
             PrivateKey privateKeyLoad = getChrystalsDilithiumPrivateKeyFromEncoded(privateKeyByte);
             PublicKey publicKeyLoad = getChrystalsDilithiumPublicKeyFromEncoded(publicKeyByte);
 
-            System.out.println("\n* * * sign the dataToSign with the private key * * *");
+            out += "\n" + "\n* * * sign the dataToSign with the private key * * *";
             byte[] signature = pqcChrystalsDilithiumSignature(privateKeyLoad, dataToSign);
-            System.out.println("signature length: " + signature.length + " data:\n" + bytesToHex(signature));
+            out += "\n" + "signature length: " + signature.length + " data: " + (truncateSignatureOutput ?shortenString(bytesToHex(signature)):bytesToHex(signature));
             signatureLength[i] = signature.length;
 
-            System.out.println("\n* * * verify the signature with the public key * * *");
+            out += "\n" + "\n* * * verify the signature with the public key * * *";
             boolean signatureVerified = pqcChrystalsDilithiumVerification(publicKeyLoad, dataToSign, signature);
-            System.out.println("the signature is verified: " + signatureVerified);
+            out += "\n" + "the signature is verified: " + signatureVerified;
             signaturesVerified[i] = signatureVerified;
         }
 
-        System.out.println("\nTest results");
-        System.out.println("parameter spec name  priKL   pubKL    sigL  sigV");
+        out += "\n" + "\nTest results";
+        out += "\n" + "parameter spec name  priKL   pubKL    sigL  sigV" + "\n";
         for (int i = 0; i < nrOfSpecs; i++) {
-            System.out.format("%-20s%6d%8d%8d%6b%n", parameterSpecName[i], privateKeyLength[i], publicKeyLength[i], signatureLength[i], signaturesVerified[i]);
+            String out1 = String.format("%-20s%6d%8d%8d%6b%n", parameterSpecName[i], privateKeyLength[i], publicKeyLength[i], signatureLength[i], signaturesVerified[i]);
+            out += out1;
         }
-        System.out.println("Legend: priKL privateKey length, pubKL publicKey length, sigL signature length, sigV signature verified\n");
+        out += "\n" + "Legend: priKL privateKey length, pubKL publicKey length, sigL signature length, sigV signature verified\n";
+        return out;
+    }
+
+    private static String shortenString (String input) {
+        if (input != null && input.length() > 32) {
+            return input.substring(0, 32) + " ...";
+        } else {
+            return input;
+        }
     }
 
     private static KeyPair generateChrystalsDilithiumKeyPair(DilithiumParameterSpec dilithiumParameterSpec) {

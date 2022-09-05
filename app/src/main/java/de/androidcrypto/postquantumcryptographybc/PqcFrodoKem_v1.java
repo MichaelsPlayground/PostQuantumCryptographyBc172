@@ -23,7 +23,7 @@ import java.security.spec.X509EncodedKeySpec;
 
 import javax.crypto.KeyGenerator;
 
-public class PqcFrodoKem {
+public class PqcFrodoKem_v1 {
 
 
     public static void main(String[] args) {
@@ -34,15 +34,9 @@ public class PqcFrodoKem {
         if (Security.getProvider("BCPQC") == null) {
             Security.addProvider(new BouncyCastlePQCProvider());
         }
+        System.out.println("PQC Frodo kem");
 
-        String print = run(false);
-        System.out.println(print);
-}
-
-    public static String run(boolean truncateKeyOutput) {
-        String out = "PQC Frodo KEM";
-
-        out += "\n" + "\n************************************\n" +
+        System.out.println("\n************************************\n" +
                 "* # # SERIOUS SECURITY WARNING # # *\n" +
                 "* This program is a CONCEPT STUDY  *\n" +
                 "* for the algorithm                *\n" +
@@ -54,7 +48,7 @@ public class PqcFrodoKem {
                 "*                                  *\n" +
                 "*    DO NOT USE THE PROGRAM IN     *\n" +
                 "*    ANY PRODUCTION ENVIRONMENT    *\n" +
-                "************************************";
+                "************************************");
 
         // as there are 6 parameter sets available the program runs all of them
         FrodoParameterSpec[] frodoParameterSpecs =  {
@@ -80,7 +74,7 @@ public class PqcFrodoKem {
             FrodoParameterSpec frodoParameterSpec = frodoParameterSpecs[i];
             String frodoParameterSpecName = frodoParameterSpec.getName();
             parameterSpecName[i] = frodoParameterSpecName;
-            out += "\n" + "\nFrodo KEM with parameterset " + frodoParameterSpecName;
+            System.out.println("\nFrodo KEM with parameterset " + frodoParameterSpecName);
             KeyPair keyPair = generateFrodoKeyPair(frodoParameterSpec);
 
             // get private and public key
@@ -90,8 +84,8 @@ public class PqcFrodoKem {
             // storing the key as byte array
             byte[] privateKeyByte = privateKey.getEncoded();
             byte[] publicKeyByte = publicKey.getEncoded();
-            out += "\n" + "\ngenerated private key length: " + privateKeyByte.length;
-            out += "\n" + "generated public key length:  " + publicKeyByte.length;
+            System.out.println("\ngenerated private key length: " + privateKeyByte.length);
+            System.out.println("generated public key length:  " + publicKeyByte.length);
             privateKeyLength[i] = privateKeyByte.length;
             publicKeyLength[i] = publicKeyByte.length;
 
@@ -100,43 +94,32 @@ public class PqcFrodoKem {
             PublicKey publicKeyLoad = getFrodoPublicKeyFromEncoded(publicKeyByte);
 
             // generate the encryption key and the encapsulated key
-            out += "\n" + "\nEncryption side: generate the encryption key and the encapsulated key";
+            System.out.println("\nEncryption side: generate the encryption key and the encapsulated key");
             SecretKeyWithEncapsulation secretKeyWithEncapsulationSender = pqcGenerateFrodoEncryptionKey(publicKeyLoad);
             byte[] encryptionKey = secretKeyWithEncapsulationSender.getEncoded();
-            out += "\n" + "encryption key length: " + encryptionKey.length
-                    + " key: " + bytesToHex(secretKeyWithEncapsulationSender.getEncoded());
+            System.out.println("encryption key length: " + encryptionKey.length
+                    + " key: " + bytesToHex(secretKeyWithEncapsulationSender.getEncoded()));
             byte[] encapsulatedKey = secretKeyWithEncapsulationSender.getEncapsulation();
-            out += "\n" + "encapsulated key length: " + encapsulatedKey.length + " key: " + (truncateKeyOutput ?shortenString(bytesToHex(encapsulatedKey)):bytesToHex(encapsulatedKey));
+            System.out.println("encapsulated key length: " + encapsulatedKey.length + " key: " + bytesToHex(encapsulatedKey));
             encryptionKeyLength[i] = encryptionKey.length;
             encapsulatedKeyLength[i] = encapsulatedKey.length;
 
-            out += "\n" + "\nDecryption side: receive the encapsulated key and generate the decryption key";
+            System.out.println("\nDecryption side: receive the encapsulated key and generate the decryption key");
             byte[] decryptionKey = pqcGenerateFrodoDecryptionKey(privateKeyLoad, encapsulatedKey);
-            out += "\n" + "decryption key length: " + decryptionKey.length + " key: " + bytesToHex(decryptionKey);
+            System.out.println("decryption key length: " + decryptionKey.length + " key: " + bytesToHex(decryptionKey));
             boolean keysAreEqual = Arrays.areEqual(encryptionKey, decryptionKey);
-            out += "\n" + "decryption key is equal to encryption key: " + keysAreEqual;
+            System.out.println("decryption key is equal to encryption key: " + keysAreEqual);
             encryptionKeysEquals[i] = keysAreEqual;
         }
 
-        out += "\n" + "\nTest results";
-        out += "\n" + "parameter spec name  priKL   pubKL encKL capKL  keyE" + "\n";
+        System.out.println("\nTest results");
+        System.out.println("parameter spec name  priKL   pubKL encKL capKL  keyE");
         for (int i = 0; i < nrOfSpecs; i++) {
-            String out1 = String.format("%-20s%6d%8d%6d%6d%6b%n", parameterSpecName[i], privateKeyLength[i], publicKeyLength[i], encryptionKeyLength[i], encapsulatedKeyLength[i], encryptionKeysEquals[i]);
-            out += out1;
+             System.out.format("%-20s%6d%8d%6d%6d%6b%n", parameterSpecName[i], privateKeyLength[i], publicKeyLength[i], encryptionKeyLength[i], encapsulatedKeyLength[i], encryptionKeysEquals[i]);
         }
-        out += "\n" + "Legend: priKL privateKey length, pubKL publicKey length, encKL encryption key length, capKL encrapsulated key length, keyE encryption keys are equal\n";
-        
-        return out;
+        System.out.println("Legend: priKL privateKey length, pubKL publicKey length, encKL encryption key length, capKL encrapsulated key length, keyE encryption keys are equal\n");
     }
 
-    private static String shortenString (String input) {
-        if (input != null && input.length() > 32) {
-            return input.substring(0, 32) + " ...";
-        } else {
-            return input;
-        }
-    }
-    
     private static KeyPair generateFrodoKeyPair(FrodoParameterSpec frodoParameterSpec) {
         try {
             KeyPairGenerator kpg = KeyPairGenerator.getInstance("Frodo", "BCPQC");

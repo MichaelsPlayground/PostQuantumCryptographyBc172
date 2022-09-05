@@ -38,29 +38,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         textViewConsole = (TextView) findViewById(R.id.textviewConsole);
 
-        Button btnClearConsole = findViewById(R.id.btnClearConsole);
-        Button btnRunCode = findViewById(R.id.btnRunCode);
-
-        btnClearConsole.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //
-                TextView textViewConsole = (TextView) findViewById(R.id.textviewConsole);
-                consoleText = "";
-                textViewConsole.setText(consoleText);
-            }
-        });
-
-        btnRunCode.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                clearConsole();
-                runMain();
-            }
-        });
-
         String[] type = new String[]{"choose algorithm to run",
-                "Chrystals-Kyber KEM", "BIKE KEM", "FRODO KEM", "Coordinate", "Coordinate userinfo", "StreetView",
+                "Chrystals-Kyber KEM", "BIKE KEM", "FRODO KEM", "ChrystalsDilithium SIG", "Coordinate userinfo", "StreetView",
                 "Address", "Google navigation", "Email", "Application", "Target address"};
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(
                 this,
@@ -103,12 +82,31 @@ public class MainActivity extends AppCompatActivity {
                                 .show();
                         break;
                     }
-                    case "StreetView": {
-
+                    case "FRODO KEM": {
+                        initBouncyCastle();
+                        new AlertDialog.Builder(view.getContext()).setTitle("Runtime warning")
+                                .setMessage("This algorithm will take some minutes to proceed and the UI will get blocked all the time, do you want to run the code anyway ?")
+                                .setPositiveButton("YES",
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                printlnX(PqcFrodoKem.run(true));
+                                                dialog.dismiss();
+                                            }
+                                        })
+                                .setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        // Do nothing
+                                        dialog.dismiss();
+                                    }
+                                })
+                                .create()
+                                .show();
                         break;
                     }
-                    case "Email": {
-
+                    case "ChrystalsDilithium SIG": {
+                        initBouncyCastle();
+                        printlnX(PqcChrystalsDilithiumSignature.run(true));
                         break;
                     }
                     case "Telefone number": {
