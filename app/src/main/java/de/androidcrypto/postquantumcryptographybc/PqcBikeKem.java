@@ -119,7 +119,7 @@ public class PqcBikeKem {
         }
 
         out += "\n" + "\nTest results";
-        out += "\n" + "parameter spec name  priKL   pubKL encKL capKL  keyE";
+        out += "\n" + "parameter spec name  priKL   pubKL encKL capKL  keyE" + "\n";
         for (int i = 0; i < nrOfSpecs; i++) {
             String out1 = String.format("%-20s%6d%8d%6d%6d%6b%n", parameterSpecName[i], privateKeyLength[i], publicKeyLength[i], encryptionKeyLength[i], encapsulatedKeyLength[i], encryptionKeysEquals[i]);
             out += out1;

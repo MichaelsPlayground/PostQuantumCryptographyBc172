@@ -1,5 +1,6 @@
 package de.androidcrypto.postquantumcryptographybc;
 
+import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Html;
@@ -12,6 +13,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -81,7 +83,24 @@ public class MainActivity extends AppCompatActivity {
                     case "BIKE KEM": {
                         runtimeWarning(view);
                         initBouncyCastle();
-                        printlnX(PqcBikeKem.run(true));
+                        new AlertDialog.Builder(view.getContext()).setTitle("Runtime warning")
+                                .setMessage("This algorithm will take some minutes to proceed and the UI will get blocked all the time, do you want to run the code anyway ?")
+                                .setPositiveButton("YES",
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                printlnX(PqcBikeKem.run(true));
+                                                dialog.dismiss();
+                                            }
+                                        })
+                                .setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        // Do nothing
+                                        dialog.dismiss();
+                                    }
+                                })
+                                .create()
+                                .show();
                         break;
                     }
                     case "StreetView": {
@@ -140,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void runtimeWarning(View view) {
-        String info = "It may take up to a minute to get results, be patient !";
+        String info = "It may take some minutes to get results, be patient !";
         Toast toast = Toast.makeText(view.getContext(), Html.fromHtml("<font color='#eFD0600' ><b>" + info + "</b></font>"), Toast.LENGTH_LONG);
         toast.setGravity(Gravity.CENTER_VERTICAL,0,0);
         toast.show();
