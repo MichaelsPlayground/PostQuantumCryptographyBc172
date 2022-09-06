@@ -1,5 +1,6 @@
 package de.androidcrypto.postquantumcryptographybc;
 
+import org.bouncycastle.pqc.jcajce.interfaces.FalconKey;
 import org.bouncycastle.pqc.jcajce.provider.BouncyCastlePQCProvider;
 import org.bouncycastle.pqc.jcajce.spec.FalconParameterSpec;
 
@@ -21,7 +22,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
-public class PqcFalconSignature {
+public class PqcFalconSignature_v1 {
 
 
     public static void main(String[] args) {
@@ -32,14 +33,9 @@ public class PqcFalconSignature {
         if (Security.getProvider("BCPQC") == null) {
             Security.addProvider(new BouncyCastlePQCProvider());
         }
-        String print = run(false);
-        System.out.println(print);
-    }
+        System.out.println("PQC Falcon");
 
-    public static String run(boolean truncateSignatureOutput) {
-        String out = "PQC Falcon signature";
-
-        out += "\n" + "\n************************************\n" +
+        System.out.println("\n************************************\n" +
                 "* # # SERIOUS SECURITY WARNING # # *\n" +
                 "* This program is a CONCEPT STUDY  *\n" +
                 "* for the algorithm                *\n" +
@@ -51,7 +47,7 @@ public class PqcFalconSignature {
                 "*                                  *\n" +
                 "*    DO NOT USE THE PROGRAM IN     *\n" +
                 "*    ANY PRODUCTION ENVIRONMENT    *\n" +
-                "************************************";
+                "************************************");
 
         String dataToSignString = "The quick brown fox jumps over the lazy dog";
         byte[] dataToSign = dataToSignString.getBytes(StandardCharsets.UTF_8);
@@ -75,7 +71,7 @@ public class PqcFalconSignature {
             FalconParameterSpec falconParameterSpec = falconParameterSpecs[i];
             String falconParameterSpecName = falconParameterSpec.getName();
             parameterSpecName[i] = falconParameterSpecName;
-            out += "\n" + "\nFalcon signature with parameterset " + falconParameterSpecName;
+            System.out.println("\nFalcon signature with parameterset " + falconParameterSpecName);
             // generation of the Falcon key pair
             KeyPair keyPair = generateFalconKeyPair(falconParameterSpec);
 
@@ -86,8 +82,8 @@ public class PqcFalconSignature {
             // storing the key as byte array
             byte[] privateKeyFalconByte = privateKeyFalcon.getEncoded();
             byte[] publicKeyFalconByte = publicKeyFalcon.getEncoded();
-            out += "\n" + "\ngenerated private key length: " + privateKeyFalconByte.length;
-            out += "\n" + "generated public key length:  " + publicKeyFalconByte.length;
+            System.out.println("\ngenerated private key length: " + privateKeyFalconByte.length);
+            System.out.println("generated public key length:  " + publicKeyFalconByte.length);
             privateKeyLength[i] = privateKeyFalconByte.length;
             publicKeyLength[i] = publicKeyFalconByte.length;
 
@@ -95,33 +91,23 @@ public class PqcFalconSignature {
             PrivateKey privateKeyFalconLoad = getFalconPrivateKeyFromEncoded(privateKeyFalconByte);
             PublicKey publicKeyFalconLoad = getFalconPublicKeyFromEncoded(publicKeyFalconByte);
 
-            out += "\n" + "\n* * * sign the dataToSign with the private key * * *";
+            System.out.println("\n* * * sign the dataToSign with the private key * * *");
             byte[] signature = pqcFalconSignature(privateKeyFalconLoad, dataToSign);
-            out += "\n" + "signature length: " + signature.length + " data: " + (truncateSignatureOutput ? shortenString(bytesToHex(signature)) : bytesToHex(signature));
+            System.out.println("signature length: " + signature.length + " data:\n" + bytesToHex(signature));
             signatureLength[i] = signature.length;
 
-            out += "\n" + "\n* * * verify the signature with the public key * * *";
+            System.out.println("\n* * * verify the signature with the public key * * *");
             boolean signatureVerified = pqcFalconVerification(publicKeyFalconLoad, dataToSign, signature);
-            out += "\n" + "the signature is verified: " + signatureVerified;
+            System.out.println("the signature is verified: " + signatureVerified);
             signaturesVerified[i] = signatureVerified;
         }
 
-        out += "\n" + "\nTest results";
-        out += "\n" + "parameter spec name  priKL   pubKL    sigL  sigV" + "\n";
+        System.out.println("\nTest results");
+        System.out.println("parameter spec name  priKL   pubKL    sigL  sigV");
         for (int i = 0; i < nrOfSpecs; i++) {
-            String out1 = String.format("%-20s%6d%8d%8d%6b%n", parameterSpecName[i], privateKeyLength[i], publicKeyLength[i], signatureLength[i], signaturesVerified[i]);
-            out += out1;
+            System.out.format("%-20s%6d%8d%8d%6b%n", parameterSpecName[i], privateKeyLength[i], publicKeyLength[i], signatureLength[i], signaturesVerified[i]);
         }
-        out += "\n" + "Legend: priKL privateKey length, pubKL publicKey length, sigL signature length, sigV signature verified\n";
-        return out;
-    }
-
-    private static String shortenString(String input) {
-        if (input != null && input.length() > 32) {
-            return input.substring(0, 32) + " ...";
-        } else {
-            return input;
-        }
+        System.out.println("Legend: priKL privateKey length, pubKL publicKey length, sigL signature length, sigV signature verified\n");
     }
 
     private static KeyPair generateFalconKeyPair(FalconParameterSpec falconParameterSpec) {
@@ -135,6 +121,33 @@ public class PqcFalconSignature {
             return null;
         }
     }
+
+    private static byte[] pqcFalconSignature(FalconKey privateKey, byte[] messageByte) {
+        try {
+            Signature sig = Signature.getInstance("Falcon", "BCPQC");
+            sig.initSign((PrivateKey) privateKey, new SecureRandom());
+            sig.update(messageByte, 0, messageByte.length);
+            byte[] signature = sig.sign();
+            return signature;
+        } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidKeyException | SignatureException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private static Boolean pqcFalconVerification(FalconKey publicKey, byte[] messageByte, byte[] signatureByte) {
+        try {
+            Signature sig = Signature.getInstance("Falcon", "BCPQC");
+            sig.initVerify((PublicKey) publicKey);
+            sig.update(messageByte, 0, messageByte.length);
+            boolean result = sig.verify(signatureByte);
+            return result;
+        } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidKeyException | SignatureException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 
     private static PrivateKey getFalconPrivateKeyFromEncoded(byte[] encodedKey) {
         PKCS8EncodedKeySpec pkcs8EncodedKeySpec = new PKCS8EncodedKeySpec(encodedKey);

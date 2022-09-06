@@ -34,8 +34,6 @@ public class PqcChrystalsDilithiumSignature {
         String print = run(false);
         System.out.println(print);
 
-        System.out.println("PQC Chrystals Dilithium signature (BC implementation)");
-
         }
 
     public static String run(boolean truncateSignatureOutput) {

@@ -9,7 +9,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,9 +37,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         textViewConsole = (TextView) findViewById(R.id.textviewConsole);
 
-        String[] type = new String[]{"choose algorithm to run",
-                "Chrystals-Kyber KEM", "BIKE KEM", "FRODO KEM", "ChrystalsDilithium SIG", "Coordinate userinfo", "StreetView",
+        String[] type = new String[]{"choose algorithm to run","selected algorithms:",
+                "Chrystals-Kyber KEM", "ChrystalsDilithium SIG", "Falcon SIG", "Sphincs+",
+                "round 4 candidates:",
+                "BIKE KEM", "Classic McEliece KEM", "HQC (n.a.) KEM", "SIKE (n.a., broken) KEM",
+                "round 3 candidates:",
+                "FRODO KEM",
                 "Address", "Google navigation", "Email", "Application", "Target address"};
+
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(
                 this,
                 R.layout.drop_down_item,
@@ -109,16 +113,53 @@ public class MainActivity extends AppCompatActivity {
                         printlnX(PqcChrystalsDilithiumSignature.run(true));
                         break;
                     }
-                    case "Telefone number": {
-
+                    case "Falcon SIG": {
+                        initBouncyCastle();
+                        printlnX(PqcFalconSignature.run(true));
                         break;
                     }
-                    case "Coordinate": {
-
+                    case "Sphincs+": {
+                        initBouncyCastle();
+                        new AlertDialog.Builder(view.getContext()).setTitle("Runtime warning")
+                                .setMessage("This algorithm will take some minutes to proceed and the UI will get blocked all the time, do you want to run the code anyway ?")
+                                .setPositiveButton("YES",
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                printlnX(PqcSphincsPlusSignature.run(true));
+                                                dialog.dismiss();
+                                            }
+                                        })
+                                .setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        // Do nothing
+                                        dialog.dismiss();
+                                    }
+                                })
+                                .create()
+                                .show();
                         break;
                     }
-                    case "Coordinate userinfo": {
-
+                    case "Classic McEliece KEM": {
+                        initBouncyCastle();
+                        new AlertDialog.Builder(view.getContext()).setTitle("Runtime warning")
+                                .setMessage("This algorithm will take some minutes to proceed and the UI will get blocked all the time, do you want to run the code anyway ?")
+                                .setPositiveButton("YES",
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                printlnX(PqcClassicMcElieceKem.run(true));
+                                                dialog.dismiss();
+                                            }
+                                        })
+                                .setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        // Do nothing
+                                        dialog.dismiss();
+                                    }
+                                })
+                                .create()
+                                .show();
                         break;
                     }
                     case "Address": {

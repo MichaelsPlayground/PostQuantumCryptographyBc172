@@ -34,6 +34,9 @@ public class PqcClassicMcElieceKem {
         if (Security.getProvider("BCPQC") == null) {
             Security.addProvider(new BouncyCastlePQCProvider());
         }
+        String print = run(false);
+        System.out.println(print);
+        
         System.out.println("PQC Classic McEliece kem");
 
         System.out.println("\n************************************\n" +
@@ -119,6 +122,102 @@ public class PqcClassicMcElieceKem {
         System.out.println("Legend: priKL privateKey length, pubKL publicKey length, encKL encryption key length, capKL encrapsulated key length, keyE encryption keys are equal\n");
     }
 
+    public static String run(boolean truncateKeyOutput) {
+        String out = "PQC Classic McEliece KEM";
+
+        out += "\n" + "\n************************************\n" +
+                "* # # SERIOUS SECURITY WARNING # # *\n" +
+                "* This program is a CONCEPT STUDY  *\n" +
+                "* for the algorithm Classic Mc     *\n" +
+                "* Eliece [key exchange mechanism]  *\n" +
+                "* The program is using an          *\n" +
+                "* parameter set that I cannot      *\n" +
+                "* check for the correctness of the *\n" +
+                "* output and other details         *\n" +
+                "*                                  *\n" +
+                "*    DO NOT USE THE PROGRAM IN     *\n" +
+                "*    ANY PRODUCTION ENVIRONMENT    *\n" +
+                "************************************";
+
+        // as there are 6 parameter sets available the program runs all of them
+        CMCEParameterSpec[] cmceParameterSpecs = {
+                CMCEParameterSpec.mceliece348864,
+                CMCEParameterSpec.mceliece348864f,
+                CMCEParameterSpec.mceliece460896,
+                CMCEParameterSpec.mceliece6688128,
+                CMCEParameterSpec.mceliece6960119,
+                CMCEParameterSpec.mceliece8192128};
+
+        // statistics
+        int nrOfSpecs = cmceParameterSpecs.length;
+        String[] parameterSpecName = new String[nrOfSpecs];
+        int[] privateKeyLength = new int[nrOfSpecs];
+        int[] publicKeyLength = new int[nrOfSpecs];
+        int[] encryptionKeyLength = new int[nrOfSpecs];
+        int[] encapsulatedKeyLength = new int[nrOfSpecs];
+        boolean[] encryptionKeysEquals = new boolean[nrOfSpecs];
+
+        for (int i = 0; i < nrOfSpecs; i++) {
+            // generation of the Classic McEliece key pair
+            CMCEParameterSpec cmceParameterSpec = cmceParameterSpecs[i];
+            String cmceParameterSpecName = cmceParameterSpec.getName();
+            parameterSpecName[i] = cmceParameterSpecName;
+            out += "\n" + "\nClassic McEliece KEM with parameterset " + cmceParameterSpecName;
+            KeyPair keyPair = generateClassicMcElieceKeyPair(cmceParameterSpec);
+
+            // get private and public key
+            PrivateKey privateKey = keyPair.getPrivate();
+            PublicKey publicKey = keyPair.getPublic();
+
+            // storing the key as byte array
+            byte[] privateKeyByte = privateKey.getEncoded();
+            byte[] publicKeyByte = publicKey.getEncoded();
+            out += "\n" + "\ngenerated private key length: " + privateKeyByte.length;
+            out += "\n" + "generated public key length:  " + publicKeyByte.length;
+            privateKeyLength[i] = privateKeyByte.length;
+            publicKeyLength[i] = publicKeyByte.length;
+
+            // generate the keys from a byte array
+            PrivateKey privateKeyLoad = getClassicMcEliecePrivateKeyFromEncoded(privateKeyByte);
+            PublicKey publicKeyLoad = getClassicMcEliecePublicKeyFromEncoded(publicKeyByte);
+
+            // generate the encryption key and the encapsulated key
+            out += "\n" + "\nEncryption side: generate the encryption key and the encapsulated key";
+            SecretKeyWithEncapsulation secretKeyWithEncapsulationSender = pqcGenerateClassicMcElieceEncryptionKey(publicKeyLoad);
+            byte[] encryptionKey = secretKeyWithEncapsulationSender.getEncoded();
+            out += "\n" + "encryption key length: " + encryptionKey.length
+                    + " key: " + bytesToHex(secretKeyWithEncapsulationSender.getEncoded());
+            byte[] encapsulatedKey = secretKeyWithEncapsulationSender.getEncapsulation();
+            out += "\n" + "encapsulated key length: " + encapsulatedKey.length + " key: " + (truncateKeyOutput ?shortenString(bytesToHex(encapsulatedKey)):bytesToHex(encapsulatedKey));
+            encryptionKeyLength[i] = encryptionKey.length;
+            encapsulatedKeyLength[i] = encapsulatedKey.length;
+
+            out += "\n" + "\nDecryption side: receive the encapsulated key and generate the decryption key";
+            byte[] decryptionKey = pqcGenerateClassicMcElieceDecryptionKey(privateKeyLoad, encapsulatedKey);
+            out += "\n" + "decryption key length: " + decryptionKey.length + " key: " + bytesToHex(decryptionKey);
+            boolean keysAreEqual = Arrays.areEqual(encryptionKey, decryptionKey);
+            out += "\n" + "decryption key is equal to encryption key: " + keysAreEqual;
+            encryptionKeysEquals[i] = keysAreEqual;
+        }
+
+        out += "\n" + "\nTest results";
+        out += "\n" + "parameter spec name     priKL    pubKL encKL capKL  keyE" + "\n";
+        for (int i = 0; i < nrOfSpecs; i++) {
+            String out1 = String.format("%-20s%9d%9d%6d%6d%6b%n", parameterSpecName[i], privateKeyLength[i], publicKeyLength[i], encryptionKeyLength[i], encapsulatedKeyLength[i], encryptionKeysEquals[i]);
+            out += out1;
+        }
+        out += "\n" + "Legend: priKL privateKey length, pubKL publicKey length, encKL encryption key length, capKL encapsulated key length, keyE encryption keys are equal\n";
+        return out;
+    }
+
+    private static String shortenString(String input) {
+        if (input != null && input.length() > 32) {
+            return input.substring(0, 32) + " ...";
+        } else {
+            return input;
+        }
+    }
+    
     public static KeyPair generateClassicMcElieceKeyPair(CMCEParameterSpec cmceParameterSpec) {
         try {
             KeyPairGenerator kpg = KeyPairGenerator.getInstance("CMCE", "BCPQC");
