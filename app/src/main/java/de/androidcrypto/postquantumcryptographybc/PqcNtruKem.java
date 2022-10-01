@@ -6,14 +6,6 @@ import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
 import org.bouncycastle.jcajce.SecretKeyWithEncapsulation;
 import org.bouncycastle.jcajce.spec.KEMExtractSpec;
 import org.bouncycastle.jcajce.spec.KEMGenerateSpec;
-/* Beta 10
-import org.bouncycastle.pqc.crypto.ntru.NTRUEncryptionKeyGenerationParameters;
-import org.bouncycastle.pqc.crypto.ntru.NTRUEncryptionKeyPairGenerator;
-import org.bouncycastle.pqc.crypto.ntru.NTRUEncryptionParameters;
-import org.bouncycastle.pqc.crypto.ntru.NTRUEncryptionPrivateKeyParameters;
-import org.bouncycastle.pqc.crypto.ntru.NTRUEncryptionPublicKeyParameters;
-import org.bouncycastle.pqc.crypto.ntru.NTRUEngine;
- */
 import org.bouncycastle.pqc.jcajce.provider.BouncyCastlePQCProvider;
 import org.bouncycastle.pqc.legacy.crypto.ntru.NTRUEncryptionKeyGenerationParameters;
 import org.bouncycastle.pqc.legacy.crypto.ntru.NTRUEncryptionKeyPairGenerator;
@@ -34,7 +26,6 @@ import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.Security;
 import java.security.spec.InvalidKeySpecException;
-import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
 import javax.crypto.KeyGenerator;

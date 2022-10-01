@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
         String[] type = new String[]{"choose algorithm to run","selected algorithms:",
                 "Chrystals-Kyber KEM", "ChrystalsDilithium SIG", "Falcon SIG", "Sphincs+",
                 "round 4 candidates:",
-                "BIKE KEM", "Classic McEliece KEM", "HQC (n.a.) KEM", "SIKE (n.a., broken) KEM",
+                "BIKE KEM", "Classic McEliece KEM", "HQC KEM", "SIKE (n.a., broken) KEM",
                 "round 3 candidates:",
                 "FRODO KEM",
                 "Address", "Google navigation", "Email", "Application", "Target address"};
@@ -94,6 +94,29 @@ public class MainActivity extends AppCompatActivity {
                                         new DialogInterface.OnClickListener() {
                                             public void onClick(DialogInterface dialog, int which) {
                                                 printlnX(PqcFrodoKem.run(true));
+                                                dialog.dismiss();
+                                            }
+                                        })
+                                .setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        // Do nothing
+                                        dialog.dismiss();
+                                    }
+                                })
+                                .create()
+                                .show();
+                        break;
+                    }
+                    case "HQC KEM": {
+                        runtimeWarning(view);
+                        initBouncyCastle();
+                        new AlertDialog.Builder(view.getContext()).setTitle("Runtime warning")
+                                .setMessage("This algorithm will take some minutes to proceed and the UI will get blocked all the time, do you want to run the code anyway ?")
+                                .setPositiveButton("YES",
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                printlnX(PqcHqcKem.run(true));
                                                 dialog.dismiss();
                                             }
                                         })
