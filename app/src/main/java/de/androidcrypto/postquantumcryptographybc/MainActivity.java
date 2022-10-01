@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
                 "BIKE KEM", "Classic McEliece KEM", "HQC KEM", "SIKE (n.a., broken) KEM",
                 "round 3 candidates:",
                 "FRODO KEM",
-                "Address", "Google navigation", "Email", "Application", "Target address"};
+                "NtruLPRime KEM", "Google navigation", "Email", "Application", "Target address"};
 
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(
                 this,
@@ -171,6 +171,28 @@ public class MainActivity extends AppCompatActivity {
                                         new DialogInterface.OnClickListener() {
                                             public void onClick(DialogInterface dialog, int which) {
                                                 printlnX(PqcClassicMcElieceKem.run(true));
+                                                dialog.dismiss();
+                                            }
+                                        })
+                                .setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        // Do nothing
+                                        dialog.dismiss();
+                                    }
+                                })
+                                .create()
+                                .show();
+                        break;
+                    }
+                    case "NtruLPRime KEM": {
+                        initBouncyCastle();
+                        new AlertDialog.Builder(view.getContext()).setTitle("Runtime warning")
+                                .setMessage("This algorithm will take some minutes to proceed and the UI will get blocked all the time, do you want to run the code anyway ?")
+                                .setPositiveButton("YES",
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                PqcNtruLPRimeKem.main(null);
                                                 dialog.dismiss();
                                             }
                                         })

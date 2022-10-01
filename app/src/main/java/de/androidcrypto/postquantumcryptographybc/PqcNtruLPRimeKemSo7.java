@@ -3,6 +3,9 @@ package de.androidcrypto.postquantumcryptographybc;
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
 import org.bouncycastle.crypto.SecretWithEncapsulation;
 import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
+
+import org.bouncycastle.pqc.crypto.hqc.HQCPrivateKeyParameters;
+import org.bouncycastle.pqc.crypto.hqc.HQCPublicKeyParameters;
 import org.bouncycastle.pqc.crypto.ntruprime.NTRULPRimeKEMExtractor;
 import org.bouncycastle.pqc.crypto.ntruprime.NTRULPRimeKEMGenerator;
 import org.bouncycastle.pqc.crypto.ntruprime.NTRULPRimeKeyGenerationParameters;
@@ -10,24 +13,44 @@ import org.bouncycastle.pqc.crypto.ntruprime.NTRULPRimeKeyPairGenerator;
 import org.bouncycastle.pqc.crypto.ntruprime.NTRULPRimeParameters;
 import org.bouncycastle.pqc.crypto.ntruprime.NTRULPRimePrivateKeyParameters;
 import org.bouncycastle.pqc.crypto.ntruprime.NTRULPRimePublicKeyParameters;
+import org.bouncycastle.pqc.crypto.ntruprime.SNTRUPrimeKEMExtractor;
+import org.bouncycastle.pqc.crypto.ntruprime.SNTRUPrimeKEMGenerator;
+import org.bouncycastle.pqc.crypto.ntruprime.SNTRUPrimeKeyGenerationParameters;
+import org.bouncycastle.pqc.crypto.ntruprime.SNTRUPrimeKeyPairGenerator;
+import org.bouncycastle.pqc.crypto.ntruprime.SNTRUPrimeParameters;
+import org.bouncycastle.pqc.crypto.ntruprime.SNTRUPrimePrivateKeyParameters;
+import org.bouncycastle.pqc.crypto.ntruprime.SNTRUPrimePublicKeyParameters;
+import org.bouncycastle.pqc.crypto.util.PrivateKeyFactory;
+import org.bouncycastle.pqc.crypto.util.PrivateKeyInfoFactory;
+import org.bouncycastle.pqc.crypto.util.PublicKeyFactory;
 import org.bouncycastle.pqc.jcajce.provider.BouncyCastlePQCProvider;
+//bc-java/core/src/main/java/org/bouncycastle/pqc/crypto/util/PrivateKeyFactory.java
 import org.bouncycastle.util.Arrays;
 
+import java.io.IOException;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.Security;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 
-public class PqcNtruLPRimeKem {
+public class PqcNtruLPRimeKemSo7 {
 
 
     public static void main(String[] args) {
         //Security.addProvider(new BouncyCastleProvider());
         // we do need the regular Bouncy Castle file that includes the PQC provider
         // get Bouncy Castle here: https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15on
-        // tested with BC version 1.72
+        // tested with BC version 1.72 Beta 13
         if (Security.getProvider("BCPQC") == null) {
             Security.addProvider(new BouncyCastlePQCProvider());
         }
-        System.out.println("PQC NTRU LPRime kem V2");
+        System.out.println("PQC NTRU LPRime kem");
 
         System.out.println("\n************************************\n" +
                 "* # # SERIOUS SECURITY WARNING # # *\n" +
@@ -67,7 +90,6 @@ public class PqcNtruLPRimeKem {
         //byte[] keyToEncrypt = keyToEncryptString.getBytes(StandardCharsets.UTF_8);
 
         for (int i = 0; i < nrOfSpecs; i++) {
-        //for (int i = 0; i < 1; i++) {
             // generation of the NTRU Prime key pair
             NTRULPRimeParameters ntruLPrimeParameter = ntruLPrimeParameters[i];
             String ntruPrimeParameterSpecName = ntruLPrimeParameter.getName();
@@ -80,21 +102,59 @@ public class PqcNtruLPRimeKem {
             AsymmetricKeyParameter publicKey = keyPair.getPublic();
 
             // storing the key as byte array
-            // todo find a better way to rebuild the keys from the encoded form
+            // storing the key as byte array
             byte[] privateKeyByte = ((NTRULPRimePrivateKeyParameters) privateKey).getEncoded();
+            byte[] publicKeyByte = ((NTRULPRimePublicKeyParameters) publicKey).getEncoded();
+            System.out.println("generated private key length: " + privateKeyByte.length);
+            System.out.println("generated public key length:  " + publicKeyByte.length);
+            privateKeyLength[i] = privateKeyByte.length;
+            publicKeyLength[i] = publicKeyByte.length;
+
+            // generate the keys from a byte array
+
+            PrivateKey privKey = (PrivateKey) keyPair.getPrivate();
+            byte[] encPrivKey = privKey.getEncoded();
+            PKCS8EncodedKeySpec privKeySpec = new PKCS8EncodedKeySpec(encPrivKey);
+            KeyFactory kf = null;
+            PrivateKey decPrivKey = null;
+            try {
+                decPrivKey = kf.generatePrivate(privKeySpec);
+            } catch (InvalidKeySpecException e) {
+                e.printStackTrace();
+            }
+
+            //NTRULPRimePrivateKeyParameters privateKeyLoad2 = new NTRULPRimePrivateKeyParameters(ntruLPrimeParameter, privateKeyByte);
+
+            try {
+                //NTRULPRimePrivateKeyParameters privateKeyLoad = (NTRULPRimePrivateKeyParameters)PrivateKeyFactory.createKey(PrivateKeyInfoFactory.createPrivateKeyInfo((NTRULPRimePrivateKeyParameters)keyPair.getPrivate()));
+
+                AsymmetricKeyParameter sk = new AsymmetricKeyParameter(true);
+                sk = new AsymmetricKeyParameter(true);
+                NTRULPRimePrivateKeyParameters privateKeyLoad = (NTRULPRimePrivateKeyParameters)PrivateKeyFactory.createKey(PrivateKeyInfoFactory.createPrivateKeyInfo((NTRULPRimePrivateKeyParameters) sk));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            //HQCPrivateKeyParameters generatedSk = (HQCPrivateKeyParameters)PrivateKeyFactory.createKey(PrivateKeyInfoFactory.createPrivateKeyInfo((HQCPrivateKeyParameters)pair.getPrivate()));
+
+
+            NTRULPRimePublicKeyParameters publicKeyLoad = new NTRULPRimePublicKeyParameters(ntruLPrimeParameter, publicKeyByte);
+
+
+            // todo find a better way to rebuild the keys from the encoded form
+            //byte[] privateKeyByte = ((NTRULPRimePrivateKeyParameters) privateKey).getEncoded();
             byte[] privateKeyByteEnca = ((NTRULPRimePrivateKeyParameters)privateKey).getEnca();
             byte[] privateKeyBytePk = ((NTRULPRimePrivateKeyParameters)privateKey).getPk();
             byte[] privateKeyByteHash = ((NTRULPRimePrivateKeyParameters)privateKey).getHash();
             byte[] privateKeyByteRho = ((NTRULPRimePrivateKeyParameters)privateKey).getRho();
-            byte[] publicKeyByte = ((NTRULPRimePublicKeyParameters) publicKey).getEncoded();
+            //byte[] publicKeyByte = ((NTRULPRimePublicKeyParameters) publicKey).getEncoded();
 
             System.out.println("\ngenerated private key length: " + privateKeyByte.length);
             System.out.println("generated public key length:  " + publicKeyByte.length);
             privateKeyLength[i] = privateKeyByte.length;
             publicKeyLength[i] = publicKeyByte.length;
             // generate the keys from a byte array
-            AsymmetricKeyParameter publicKeyLoad = getNtruLPRimePublicKeyFromEncoded(publicKeyByte, ntruLPrimeParameter);
-            AsymmetricKeyParameter privateKeyLoad = getNtruLPRimePrivateKeyFromEncoded(privateKeyByteEnca, privateKeyBytePk, privateKeyByteRho, privateKeyByteHash, ntruLPrimeParameter);
+            //AsymmetricKeyParameter publicKeyLoad = getNtruLPRimePublicKeyFromEncoded(publicKeyByte, ntruLPrimeParameter);
+            //AsymmetricKeyParameter privateKeyLoad = getNtruLPRimePrivateKeyFromEncoded(privateKeyByteEnca, privateKeyBytePk, privateKeyByteRho, privateKeyByteHash, ntruLPrimeParameter);
 
             // generate the encryption key and the encapsulated key
             System.out.println("\nEncryption side: generate the encryption key");
@@ -110,7 +170,8 @@ public class PqcNtruLPRimeKem {
                     + " key: " + bytesToHex(encapsulatedKey));
 
             System.out.println("\nDecryption side: receive the encapsulated key and decrypt it to the decryption key");
-            byte[] decryptedKey = pqcNtruLRimeExtractSecretWithEncapsulation(privateKeyLoad, encapsulatedKey);
+            //byte[] decryptedKey = pqcNtruLRimeExtractSecretWithEncapsulation(privateKeyLoad, encapsulatedKey);
+            byte[] decryptedKey = pqcNtruLRimeExtractSecretWithEncapsulation2(decPrivKey, encapsulatedKey);
             System.out.println("decryption key length: " + decryptedKey.length + " key: " + bytesToHex(decryptedKey));
             boolean keysAreEqual = Arrays.areEqual(encryptionKey, decryptedKey);
             System.out.println("decrypted key is equal to keyToEncrypt: " + keysAreEqual);
@@ -139,6 +200,11 @@ public class PqcNtruLPRimeKem {
     }
 
     private static byte[] pqcNtruLRimeExtractSecretWithEncapsulation(AsymmetricKeyParameter privateKey, byte[] secretToDecrypt) {
+        NTRULPRimeKEMExtractor kemExtractor = new NTRULPRimeKEMExtractor((NTRULPRimePrivateKeyParameters) privateKey);
+        return kemExtractor.extractSecret(secretToDecrypt);
+    }
+
+    private static byte[] pqcNtruLRimeExtractSecretWithEncapsulation2(PrivateKey privateKey, byte[] secretToDecrypt) {
         NTRULPRimeKEMExtractor kemExtractor = new NTRULPRimeKEMExtractor((NTRULPRimePrivateKeyParameters) privateKey);
         return kemExtractor.extractSecret(secretToDecrypt);
     }
