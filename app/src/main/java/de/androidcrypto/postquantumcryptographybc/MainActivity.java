@@ -1,10 +1,18 @@
 package de.androidcrypto.postquantumcryptographybc;
 
+import android.Manifest;
+import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Html;
 import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -12,12 +20,21 @@ import android.widget.AutoCompleteTextView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.pqc.jcajce.provider.BouncyCastlePQCProvider;
 
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.security.Provider;
 import java.security.Security;
 
@@ -27,14 +44,22 @@ public class MainActivity extends AppCompatActivity {
     TextView textViewConsole, runtimeWarning;
     String consoleText = "";
     String APPTITLE = "PQC algorithms with Bouncy Castle";
-
+    Context contextSave;
+    //String dumpExportString = "";
     AutoCompleteTextView chooseAlgorithm;
     String choiceString;
+
+    private static final int REQUEST_PERMISSION_WRITE_EXTERNAL_STORAGE = 100;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Toolbar myToolbar = (Toolbar) findViewById(R.id.main_toolbar);
+        setSupportActionBar(myToolbar);
+        contextSave = getApplicationContext();
+
         textViewConsole = findViewById(R.id.textviewConsole);
         runtimeWarning = findViewById(R.id.tvMainWarningEn);
 
@@ -44,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
                 "BIKE KEM", "Classic McEliece KEM", "HQC KEM", "SIKE (n.a., broken) KEM",
                 "round 3 candidates:",
                 "NTRU KEM", "FRODO KEM", "SABER KEM", "Rainbow SIG",
-                "NTRULPRime KEM", "SNTRUPRime KEM"};
+                "NTRULPRime KEM", "SNTRUPRime KEM", "Picnic SIG"};
 
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(
                 this,
@@ -64,7 +89,24 @@ public class MainActivity extends AppCompatActivity {
                     case "Chrystals-Kyber KEM": {
                         initBouncyCastle();
                         clearConsole();
-                        printlnX(PqcChrystalsKyberKem.run(true));
+                        new AlertDialog.Builder(view.getContext()).setTitle("Runtime warning")
+                                .setMessage("This algorithm will take some minutes to proceed and the UI will get blocked all the time, do you want to run the code anyway ?")
+                                .setPositiveButton("YES",
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                printlnX(PqcChrystalsKyberKem.run(true));
+                                                dialog.dismiss();
+                                            }
+                                        })
+                                .setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        // Do nothing
+                                        dialog.dismiss();
+                                    }
+                                })
+                                .create()
+                                .show();
                         break;
                     }
                     case "BIKE KEM": {
@@ -141,13 +183,47 @@ public class MainActivity extends AppCompatActivity {
                     case "ChrystalsDilithium SIG": {
                         initBouncyCastle();
                         clearConsole();
-                        printlnX(PqcChrystalsDilithiumSignature.run(true));
+                        new AlertDialog.Builder(view.getContext()).setTitle("Runtime warning")
+                                .setMessage("This algorithm will take some minutes to proceed and the UI will get blocked all the time, do you want to run the code anyway ?")
+                                .setPositiveButton("YES",
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                printlnX(PqcChrystalsDilithiumSignature.run(true));
+                                                dialog.dismiss();
+                                            }
+                                        })
+                                .setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        // Do nothing
+                                        dialog.dismiss();
+                                    }
+                                })
+                                .create()
+                                .show();
                         break;
                     }
                     case "Falcon SIG": {
                         initBouncyCastle();
                         clearConsole();
-                        printlnX(PqcFalconSignature.run(true));
+                        new AlertDialog.Builder(view.getContext()).setTitle("Runtime warning")
+                                .setMessage("This algorithm will take some minutes to proceed and the UI will get blocked all the time, do you want to run the code anyway ?")
+                                .setPositiveButton("YES",
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                printlnX(PqcFalconSignature.run(true));
+                                                dialog.dismiss();
+                                            }
+                                        })
+                                .setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        // Do nothing
+                                        dialog.dismiss();
+                                    }
+                                })
+                                .create()
+                                .show();
                         break;
                     }
                     case "Sphincs+ SIG": {
@@ -313,6 +389,29 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     }
 
+                    case "Picnic SIG": {
+                        initBouncyCastle();
+                        clearConsole();
+                        new AlertDialog.Builder(view.getContext()).setTitle("Runtime warning")
+                                .setMessage("This algorithm will take some minutes to proceed and the UI will get blocked all the time, do you want to run the code anyway ?")
+                                .setPositiveButton("YES",
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                printlnX(PqcPicnicSignature.run(true));
+                                                dialog.dismiss();
+                                            }
+                                        })
+                                .setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        // Do nothing
+                                        dialog.dismiss();
+                                    }
+                                })
+                                .create()
+                                .show();
+                        break;
+                    }
                     default: {
 
                         break;
@@ -320,7 +419,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-
     }
 
     private void initBouncyCastle() {
@@ -367,6 +465,145 @@ public class MainActivity extends AppCompatActivity {
         return "Android SDK: " + sdkVersion + " (" + release + ")";
     }
 
+    /**
+     * section for toolbar menu
+     */
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_activity_main, menu);
+
+        MenuItem mExportMail = menu.findItem(R.id.action_export_mail);
+        mExportMail.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                //Intent i = new Intent(MainActivity.this, AddEntryActivity.class);
+                //startActivity(i);
+                exportDumpMail();
+                return false;
+            }
+        });
+
+        MenuItem mExportFile = menu.findItem(R.id.action_export_file);
+        mExportFile.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                //Intent i = new Intent(MainActivity.this, AddEntryActivity.class);
+                //startActivity(i);
+                exportDumpFile();
+                return false;
+            }
+        });
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    private void exportDumpMail() {
+        if (consoleText.isEmpty()) {
+            writeToUiToast("run an entry before sending emails :-)");
+            return;
+        }
+        String subject = "PQC with Bouncy Castle";
+        String body = consoleText;
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        intent.putExtra(Intent.EXTRA_SUBJECT, subject);
+        intent.putExtra(Intent.EXTRA_TEXT, body);
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
+        }
+    }
+
+    private void exportDumpFile() {
+        if (consoleText.isEmpty()) {
+            writeToUiToast("run an entry before writing files :-)");
+            return;
+        }
+        verifyPermissionsWriteString();
+    }
+
+    // section external storage permission check
+    private void verifyPermissionsWriteString() {
+        String[] permissions = {Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        if (ContextCompat.checkSelfPermission(this.getApplicationContext(),
+                permissions[0]) == PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(this.getApplicationContext(),
+                permissions[1]) == PackageManager.PERMISSION_GRANTED) {
+            writeStringToExternalSharedStorage();
+        } else {
+            ActivityCompat.requestPermissions(this,
+                    permissions,
+                    REQUEST_PERMISSION_WRITE_EXTERNAL_STORAGE);
+        }
+    }
+
+    private void writeStringToExternalSharedStorage() {
+        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("*/*");
+        // Optionally, specify a URI for the file that should appear in the
+        // system file picker when it loads.
+        //boolean pickerInitialUri = false;
+        //intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, pickerInitialUri);
+        // get filename from edittext
+        String filename = "pqc" + ".txt";
+        // sanity check
+        if (filename.equals("")) {
+            writeToUiToast("run an entry before writing the content to a file :-)");
+            return;
+        }
+        intent.putExtra(Intent.EXTRA_TITLE, filename);
+        fileSaverActivityResultLauncher.launch(intent);
+    }
+
+    ActivityResultLauncher<Intent> fileSaverActivityResultLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+                @Override
+                public void onActivityResult(ActivityResult result) {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        // There are no request codes
+                        Intent resultData = result.getData();
+                        // The result data contains a URI for the document or directory that
+                        // the user selected.
+                        Uri uri = null;
+                        if (resultData != null) {
+                            uri = resultData.getData();
+                            // Perform operations on the document using its URI.
+                            try {
+                                // get file content from edittext
+                                String fileContent = consoleText;
+                                writeTextToUri(uri, fileContent);
+                                String message = "file written to external shared storage: " + uri.toString();
+                                writeToUiToast("file written to external shared storage: " + uri.toString());
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                                writeToUiToast("ERROR: " + e.toString());
+                                return;
+                            }
+                        }
+                    }
+                }
+            });
+
+    private void writeTextToUri(Uri uri, String data) throws IOException {
+        try {
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(contextSave.getContentResolver().openOutputStream(uri));
+            outputStreamWriter.write(data);
+            outputStreamWriter.close();
+        } catch (IOException e) {
+            System.out.println("Exception File write failed: " + e.toString());
+        }
+    }
+
+    private void writeToUiToast(String message) {
+        runOnUiThread(() -> {
+            Toast.makeText(getApplicationContext(),
+                    message,
+                    Toast.LENGTH_SHORT).show();
+        });
+    }
+
     /* ############# your code comes below ####################
        change all code: System.out.println("something");
        to printlnX("something");
@@ -385,81 +622,7 @@ public class MainActivity extends AppCompatActivity {
         printlnX("Android version: " + getAndroidVersion());
         printlnX("BouncyCastle version: " + getBouncyCastleVersion());
         printlnX("BouncyCastle PQC version: " + getBouncyCastlePqcVersion());
-// "Chrystals-Kyber KEM", "BIKE KEM", "FRODO KEM", "Coordinate", "Coordinate userinfo", "StreetView",
-//                "Address", "Google navigation", "Email", "Application", "Target address"};
-        switch (choiceString) {
-            case "Chrystals-Kyber KEM": {
-                printlnX(PqcChrystalsKyberKem.run(true));
-                break;
-            }
-            case "URI": {
 
-                break;
-            }
-            case "StreetView": {
-
-                break;
-            }
-            case "Email": {
-
-                break;
-            }
-            case "Telefone number": {
-
-                break;
-            }
-            case "Coordinate": {
-
-                break;
-            }
-            case "Coordinate userinfo": {
-
-                break;
-            }
-            case "Address": {
-
-                break;
-            }
-            case "Google navigation": {
-
-                break;
-            }
-            case "Application": {
-
-                break;
-            }
-            default: {
-
-                break;
-            }
-        }
-
-
-
-        printlnX("");
-
-        // kem's
-
-        //PqcChrystalsKyberKem.main(null);
-
-
-        /*
-        PqcChrystalsKyberKem.main(null);
-        PqcClassicMcElieceKem.main(null); // 6 parameter sets to run !
-        PqcFrodoKem.main(null); // round 3 candidate
-        PqcSaberKem.main(null); // round 3 candidate
-        PqcNtruKem.main(null); // round 3 candidate
-        PqcBikeKem.main(null); // round 4 candidate
-        PqcSNtruPrimeKem.main(null);
-        PqcNtruLPRimeKem.main(null); // use this
-        PqcNtruLPRimeReflectionKem.main(null);
-        // signatures
-        PqcChrystalsDilithiumBcSignature.main(null);
-        PqcFalconSignature.main((null));
-        PqcSphincsPlusSignature.main(null); // 24 parameter sets to run !
-        PqcPicnicSignature.main(null); // round 3 candidate
-        PqcRainbowSignature.main(null); // round 3 candidate
-*/
     }
 
     private static String getBouncyCastleVersion() {

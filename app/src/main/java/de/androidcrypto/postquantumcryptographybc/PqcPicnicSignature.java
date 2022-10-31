@@ -32,9 +32,15 @@ public class PqcPicnicSignature {
         if (Security.getProvider("BCPQC") == null) {
             Security.addProvider(new BouncyCastlePQCProvider());
         }
-        System.out.println("PQC Picnic signature");
+        String print = run(false);
+        System.out.println(print);
 
-        System.out.println("\n************************************\n" +
+    }
+
+    public static String run(boolean truncateSignatureOutput) {
+        String out = "PQC Picnic signature";
+
+        out += "\n************************************\n" +
                 "* # # SERIOUS SECURITY WARNING # # *\n" +
                 "* This program is a CONCEPT STUDY  *\n" +
                 "* for the algorithm                *\n" +
@@ -46,7 +52,7 @@ public class PqcPicnicSignature {
                 "*                                  *\n" +
                 "*    DO NOT USE THE PROGRAM IN     *\n" +
                 "*    ANY PRODUCTION ENVIRONMENT    *\n" +
-                "************************************");
+                "************************************";
 
         String dataToSignString = "The quick brown fox jumps over the lazy dog";
         byte[] dataToSign = dataToSignString.getBytes(StandardCharsets.UTF_8);
@@ -75,12 +81,13 @@ public class PqcPicnicSignature {
         int[] signatureLength = new int[nrOfSpecs];
         boolean[] signaturesVerified = new boolean[nrOfSpecs];
 
+        out += "\n\n****************************************\n";
         for (int i = 0; i < nrOfSpecs; i++) {
             // generation of the Picnic key pair
             PicnicParameterSpec picnicParameterSpec = picnicParameterSpecs[i];
             String picnicParameterSpecName = picnicParameterSpec.getName();
             parameterSpecName[i] = picnicParameterSpecName;
-            System.out.println("\nPicnic signature with parameterset " + picnicParameterSpecName);
+            out += "\nPicnic signature with parameterset " + picnicParameterSpecName;
             KeyPair keyPair = generatePicnicKeyPair(picnicParameterSpec);
 
             // get private and public key
@@ -90,8 +97,8 @@ public class PqcPicnicSignature {
             // storing the key as byte array
             byte[] privateKeyByte = privateKey.getEncoded();
             byte[] publicKeyByte = publicKey.getEncoded();
-            System.out.println("\ngenerated private key length: " + privateKeyByte.length);
-            System.out.println("generated public key length:  " + publicKeyByte.length);
+            out += "\ngenerated private key length: " + privateKeyByte.length;
+            out += "generated public key length:  " + publicKeyByte.length;
             privateKeyLength[i] = privateKeyByte.length;
             publicKeyLength[i] = publicKeyByte.length;
 
@@ -99,23 +106,35 @@ public class PqcPicnicSignature {
             PrivateKey privateKeyLoad = getPicnicPrivateKeyFromEncoded(privateKeyByte);
             PublicKey publicKeyLoad = getPicnicPublicKeyFromEncoded(publicKeyByte);
 
-            System.out.println("\n* * * sign the dataToSign with the private key * * *");
+            out += "\n* * * sign the dataToSign with the private key * * *";
             byte[] signature = pqcPicnicSignature(privateKeyLoad, dataToSign);
-            System.out.println("signature length: " + signature.length + " data:\n" + bytesToHex(signature));
+            out += "\n" + "signature length: " + signature.length + " data: " + (truncateSignatureOutput ?shortenString(bytesToHex(signature)):bytesToHex(signature));
             signatureLength[i] = signature.length;
 
-            System.out.println("\n* * * verify the signature with the public key * * *");
+            out += "\n* * * verify the signature with the public key * * *";
             boolean signatureVerified = pqcPicnicVerification(publicKeyLoad, dataToSign, signature);
-            System.out.println("the signature is verified: " + signatureVerified);
+            out += "\nthe signature is verified: " + signatureVerified;
             signaturesVerified[i] = signatureVerified;
+            out += "\n\n****************************************\n";
         }
 
-        System.out.println("\nTest results");
-        System.out.println("parameter spec name  priKL   pubKL    sigL  sigV");
+        out += "\nTest results";
+        out += "parameter spec name  priKL   pubKL    sigL  sigV" + "\n";
         for (int i = 0; i < nrOfSpecs; i++) {
-            System.out.format("%-20s%6d%8d%8d%6b%n", parameterSpecName[i], privateKeyLength[i], publicKeyLength[i], signatureLength[i], signaturesVerified[i]);
+            String out1 = String.format("%-20s%6d%8d%8d%6b%n", parameterSpecName[i], privateKeyLength[i], publicKeyLength[i], signatureLength[i], signaturesVerified[i]);
+            out += out1;
         }
-        System.out.println("Legend: priKL privateKey length, pubKL publicKey length, sigL signature length, sigV signature verified\n");
+        out += "\nLegend: priKL privateKey length, pubKL publicKey length, sigL signature length, sigV signature verified\n";
+        out += "\n\n****************************************\n";
+        return out;
+    }
+
+    private static String shortenString (String input) {
+        if (input != null && input.length() > 32) {
+            return input.substring(0, 32) + " ...";
+        } else {
+            return input;
+        }
     }
 
     private static KeyPair generatePicnicKeyPair(PicnicParameterSpec picnicParameterSpec) {
