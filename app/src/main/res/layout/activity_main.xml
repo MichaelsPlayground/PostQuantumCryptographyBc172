@@ -27,6 +27,20 @@
         </AutoCompleteTextView>
     </com.google.android.material.textfield.TextInputLayout>
 
+    <TextView
+        android:id="@+id/tvMainWarningEn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="8dp"
+        android:padding="10dp"
+        android:text="@string/warning_en"
+        android:textAlignment="center"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:background="@drawable/share_rounded_corner_with_border_error"/>
+
     <ScrollView
         android:id="@+id/scrollView"
         android:layout_weight="1"

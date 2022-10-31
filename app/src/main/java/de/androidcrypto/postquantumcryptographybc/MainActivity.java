@@ -24,7 +24,7 @@ import java.security.Security;
 
 public class MainActivity extends AppCompatActivity {
 
-    TextView textViewConsole;
+    TextView textViewConsole, runtimeWarning;
     String consoleText = "";
     String APPTITLE = "PQC algorithms with Bouncy Castle";
 
@@ -35,7 +35,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        textViewConsole = (TextView) findViewById(R.id.textviewConsole);
+        textViewConsole = findViewById(R.id.textviewConsole);
+        runtimeWarning = findViewById(R.id.tvMainWarningEn);
 
         String[] type = new String[]{"choose algorithm to run","selected algorithms:",
                 "Chrystals-Kyber KEM", "ChrystalsDilithium SIG", "Falcon SIG", "Sphincs+ SIG",
@@ -56,6 +57,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 String choiceString = chooseAlgorithm.getText().toString();
+
+                runtimeWarning.setVisibility(View.GONE);
 
                 switch (choiceString) {
                     case "Chrystals-Kyber KEM": {
