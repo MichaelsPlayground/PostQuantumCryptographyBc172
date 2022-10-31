@@ -39,8 +39,7 @@ CRYSTALS-KYBER
 
 ```plaintext
 Selected Algorithms: Digital Signature Algorithms:
-CRYSTALS-DILITHIUM (As BC in 1.72 Beta 10 does not provide an implementation of Chrystals-Dilithium  
-this signature scheme uses an other implementation: https://github.com/mthiim/dilithium-java)
+CRYSTALS-DILITHIUM
 FALCON
 SPHINCS+
 ```

@@ -25,12 +25,11 @@ import javax.crypto.KeyGenerator;
 
 public class PqcChrystalsKyberKem {
 
-
     public static void main(String[] args) {
         // Security.addProvider(new BouncyCastleProvider());
         // we do need the regular Bouncy Castle file that includes the PQC provider
-        // get Bouncy Castle here: https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15on
-        // tested with BC version 1.72 Beta 10
+        // get Bouncy Castle here: https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk18on
+        // tested with BC version 1.72
         if (Security.getProvider("BCPQC") == null) {
             Security.addProvider(new BouncyCastlePQCProvider());
         }
@@ -71,12 +70,13 @@ public class PqcChrystalsKyberKem {
         int[] encapsulatedKeyLength = new int[nrOfSpecs];
         boolean[] encryptionKeysEquals = new boolean[nrOfSpecs];
 
+        out += "\n\n****************************************\n";
         for (int i = 0; i < nrOfSpecs; i++) {
             // generation of the Chrystals-Kyber key pair
             KyberParameterSpec kyberParameterSpec = kyberParameterSpecs[i];
             String kyberParameterSpecName = kyberParameterSpec.getName();
             parameterSpecName[i] = kyberParameterSpecName;
-            out += "\n" + "\nChrystals-Kyber KEM with parameterset " + kyberParameterSpecName;
+            out += "\n" + "Chrystals-Kyber KEM with parameterset " + kyberParameterSpecName;
             KeyPair keyPair = generateChrystalsKyberKeyPair(kyberParameterSpec);
 
             // get private and public key
@@ -113,16 +113,18 @@ public class PqcChrystalsKyberKem {
             boolean keysAreEqual = Arrays.areEqual(encryptionKey, decryptionKey);
             out += "\n" + "decryption key is equal to encryption key: " + keysAreEqual;
             encryptionKeysEquals[i] = keysAreEqual;
+            out += "\n\n****************************************\n";
         }
 
-        out += "\n" + "\nTest results";
-        out += "\n" + "parameter spec name  priKL   pubKL encKL capKL  keyE" + "\n";
+        out += "\n" + "Test results";
+        out += "\n" + "parameter spec name  priKL   pubKL encKL capKL  keyE"   + "\n";
         for (int i = 0; i < nrOfSpecs; i++) {
             String out1 = String.format("%-20s%6d%8d%6d%6d%6b%n", parameterSpecName[i], privateKeyLength[i], publicKeyLength[i], encryptionKeyLength[i], encapsulatedKeyLength[i], encryptionKeysEquals[i]);
             out += out1;
         }
-        out += "\n" + "Legend: priKL privateKey length, pubKL publicKey length, encKL encryption key length, capKL encapsulated key length, keyE encryption keys are equal\n";
-
+        out += "\n" + "Legend: priKL privateKey length, pubKL publicKey length, encKL encryption key length, "
+                + "capKL encapsulated key length" + "\n";
+        out += "****************************************\n";
         return out;
     }
 

@@ -22,9 +22,10 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
 public class PqcChrystalsDilithiumSignature {
-
-    // available in BC Beta 13
-
+    // Security.addProvider(new BouncyCastleProvider());
+    // we do need the regular Bouncy Castle file that includes the PQC provider
+    // get Bouncy Castle here: https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk18on
+    // tested with BC version 1.72
     public static void main(String[] args) {
 
         if (Security.getProvider("BCPQC") == null) {
@@ -70,12 +71,13 @@ public class PqcChrystalsDilithiumSignature {
         int[] signatureLength = new int[nrOfSpecs];
         boolean[] signaturesVerified = new boolean[nrOfSpecs];
 
+        out += "\n\n****************************************\n";
         for (int i = 0; i < nrOfSpecs; i++) {
             // generation of the Chrystals Dilithium key pair
             DilithiumParameterSpec dilithiumParameterSpec = dilithiumParameterSpecs[i];
             String dilithiumParameterSpecName = dilithiumParameterSpec.getName();
             parameterSpecName[i] = dilithiumParameterSpecName;
-            out += "\n" + "\nChrystals Dilithium signature with parameterset " + dilithiumParameterSpecName;
+            out += "\n" + "Chrystals Dilithium signature with parameterset " + dilithiumParameterSpecName;
             KeyPair keyPair = generateChrystalsDilithiumKeyPair(dilithiumParameterSpec);
 
             // get private and public key
@@ -103,15 +105,17 @@ public class PqcChrystalsDilithiumSignature {
             boolean signatureVerified = pqcChrystalsDilithiumVerification(publicKeyLoad, dataToSign, signature);
             out += "\n" + "the signature is verified: " + signatureVerified;
             signaturesVerified[i] = signatureVerified;
+            out += "\n\n****************************************\n";
         }
 
-        out += "\n" + "\nTest results";
+        out += "\n" + "Test results";
         out += "\n" + "parameter spec name  priKL   pubKL    sigL  sigV" + "\n";
         for (int i = 0; i < nrOfSpecs; i++) {
             String out1 = String.format("%-20s%6d%8d%8d%6b%n", parameterSpecName[i], privateKeyLength[i], publicKeyLength[i], signatureLength[i], signaturesVerified[i]);
             out += out1;
         }
         out += "\n" + "Legend: priKL privateKey length, pubKL publicKey length, sigL signature length, sigV signature verified\n";
+        out += "\n****************************************\n";
         return out;
     }
 

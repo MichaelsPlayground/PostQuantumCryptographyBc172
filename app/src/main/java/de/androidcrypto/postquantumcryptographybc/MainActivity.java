@@ -38,12 +38,12 @@ public class MainActivity extends AppCompatActivity {
         textViewConsole = (TextView) findViewById(R.id.textviewConsole);
 
         String[] type = new String[]{"choose algorithm to run","selected algorithms:",
-                "Chrystals-Kyber KEM", "ChrystalsDilithium SIG", "Falcon SIG", "Sphincs+",
+                "Chrystals-Kyber KEM", "ChrystalsDilithium SIG", "Falcon SIG", "Sphincs+ SIG",
                 "round 4 candidates:",
                 "BIKE KEM", "Classic McEliece KEM", "HQC KEM", "SIKE (n.a., broken) KEM",
                 "round 3 candidates:",
                 "FRODO KEM",
-                "NtruLPRime KEM", "Google navigation", "Email", "Application", "Target address"};
+                "NtruLPRime KEM", "NtruSPRime KEM", "Email", "Application", "Target address"};
 
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(
                 this,
@@ -60,12 +60,14 @@ public class MainActivity extends AppCompatActivity {
                 switch (choiceString) {
                     case "Chrystals-Kyber KEM": {
                         initBouncyCastle();
+                        clearConsole();
                         printlnX(PqcChrystalsKyberKem.run(true));
                         break;
                     }
                     case "BIKE KEM": {
                         runtimeWarning(view);
                         initBouncyCastle();
+                        clearConsole();
                         new AlertDialog.Builder(view.getContext()).setTitle("Runtime warning")
                                 .setMessage("This algorithm will take some minutes to proceed and the UI will get blocked all the time, do you want to run the code anyway ?")
                                 .setPositiveButton("YES",
@@ -88,6 +90,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                     case "FRODO KEM": {
                         initBouncyCastle();
+                        clearConsole();
                         new AlertDialog.Builder(view.getContext()).setTitle("Runtime warning")
                                 .setMessage("This algorithm will take some minutes to proceed and the UI will get blocked all the time, do you want to run the code anyway ?")
                                 .setPositiveButton("YES",
@@ -111,6 +114,7 @@ public class MainActivity extends AppCompatActivity {
                     case "HQC KEM": {
                         runtimeWarning(view);
                         initBouncyCastle();
+                        clearConsole();
                         new AlertDialog.Builder(view.getContext()).setTitle("Runtime warning")
                                 .setMessage("This algorithm will take some minutes to proceed and the UI will get blocked all the time, do you want to run the code anyway ?")
                                 .setPositiveButton("YES",
@@ -133,16 +137,19 @@ public class MainActivity extends AppCompatActivity {
                     }
                     case "ChrystalsDilithium SIG": {
                         initBouncyCastle();
+                        clearConsole();
                         printlnX(PqcChrystalsDilithiumSignature.run(true));
                         break;
                     }
                     case "Falcon SIG": {
                         initBouncyCastle();
+                        clearConsole();
                         printlnX(PqcFalconSignature.run(true));
                         break;
                     }
-                    case "Sphincs+": {
+                    case "Sphincs+ SIG": {
                         initBouncyCastle();
+                        clearConsole();
                         new AlertDialog.Builder(view.getContext()).setTitle("Runtime warning")
                                 .setMessage("This algorithm will take some minutes to proceed and the UI will get blocked all the time, do you want to run the code anyway ?")
                                 .setPositiveButton("YES",
@@ -165,6 +172,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                     case "Classic McEliece KEM": {
                         initBouncyCastle();
+                        clearConsole();
                         new AlertDialog.Builder(view.getContext()).setTitle("Runtime warning")
                                 .setMessage("This algorithm will take some minutes to proceed and the UI will get blocked all the time, do you want to run the code anyway ?")
                                 .setPositiveButton("YES",
@@ -187,6 +195,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                     case "NtruLPRime KEM": {
                         initBouncyCastle();
+                        clearConsole();
                         new AlertDialog.Builder(view.getContext()).setTitle("Runtime warning")
                                 .setMessage("This algorithm will take some minutes to proceed and the UI will get blocked all the time, do you want to run the code anyway ?")
                                 .setPositiveButton("YES",
