@@ -10,6 +10,8 @@ Official NIST homepage: https://csrc.nist.gov/Projects/post-quantum-cryptography
 
 Selected algorithms: https://csrc.nist.gov/Projects/post-quantum-cryptography/selected-algorithms-2022
 
+Round 4 submissions: https://csrc.nist.gov/Projects/post-quantum-cryptography/round-4-submissions
+
 **Be aware that this is a concept study to run all PQC algorithms. There is no output to the Android  
 application but only on the console, so you need to run the code in Android Studio and open the "Run" tab. 
 The complete run with all algorithms and parameter sets will take some minutes to complete, so please be 
@@ -50,8 +52,8 @@ Round 4 searching for alternatives: https://csrc.nist.gov/Projects/post-quantum-
 Round 4 Submissions: Public-key Encryption and Key-establishment Algorithms
 BIKE
 Classic McEliece
-HQC (not available here)
-SIKE (not available here) - Note: this algorithm seems to get broken
+HQC
+SIKE (not available here) - Note: this algorithm is broken
 ```
 
 Round 3 candidates: 

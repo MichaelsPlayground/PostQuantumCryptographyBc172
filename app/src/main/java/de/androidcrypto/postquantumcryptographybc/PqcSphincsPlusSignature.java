@@ -27,8 +27,8 @@ public class PqcSphincsPlusSignature {
     public static void main(String[] args) {
         //Security.addProvider(new BouncyCastleProvider());
         // we do need the regular Bouncy Castle file that includes the PQC provider
-        // get Bouncy Castle here: https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15on
-        // tested with BC version 1.68
+        // get Bouncy Castle here: https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk18on
+        // tested with BC version 1.72
         if (Security.getProvider("BCPQC") == null) {
             Security.addProvider(new BouncyCastlePQCProvider());
         }
@@ -37,13 +37,13 @@ public class PqcSphincsPlusSignature {
     }
 
     public static String run(boolean truncateSignatureOutput) {
-        String out = "PQC Sphincs Plus signature";
+        String out = "PQC Sphincs+ signature";
 
         out += "\n" + "\n************************************\n" +
                 "* # # SERIOUS SECURITY WARNING # # *\n" +
                 "* This program is a CONCEPT STUDY  *\n" +
                 "* for the algorithm                *\n" +
-                "* Sphincs Plus [signature]         *\n" +
+                "* Sphincs+ [signature]             *\n" +
                 "* The program is using an          *\n" +
                 "* parameter set that I cannot      *\n" +
                 "* check for the correctness of the *\n" +
@@ -91,12 +91,13 @@ public class PqcSphincsPlusSignature {
         int[] signatureLength = new int[nrOfSpecs];
         boolean[] signaturesVerified = new boolean[nrOfSpecs];
 
+        out += "\n\n****************************************\n";
         for (int i = 0; i < nrOfSpecs; i++) {
             // generation of the Sphincs Plus key pair
             SPHINCSPlusParameterSpec sphincsPlusParameterSpec = sphincsPlusParameterSpecs[i];
             String sphincsPlusParameterSpecName = sphincsPlusParameterSpec.getName();
             parameterSpecName[i] = sphincsPlusParameterSpecName;
-            out += "\n" + "\nSphincs Plus signature with parameterset " + sphincsPlusParameterSpecName;
+            out += "\n" + "Sphincs+ signature with parameterset " + sphincsPlusParameterSpecName;
             // generation of the SphincsPlus key pair
             KeyPair keyPair = generateSphincsPlusKeyPair(sphincsPlusParameterSpec);
 
@@ -125,15 +126,17 @@ public class PqcSphincsPlusSignature {
             boolean signatureVerified = pqcSphincsPlusVerification(publicKeySphincsPlusLoad, dataToSign, signature);
             out += "\n" + "the signature is verified: " + signatureVerified;
             signaturesVerified[i] = signatureVerified;
+            out += "\n\n****************************************\n";
         }
 
-        out += "\n" + "\nTest results";
+        out += "\n" + "Test results";
         out += "\n" + "parameter spec name  priKL   pubKL    sigL  sigV" + "\n";
         for (int i = 0; i < nrOfSpecs; i++) {
             String out1 = String.format("%-20s%6d%8d%8d%6b%n", parameterSpecName[i], privateKeyLength[i], publicKeyLength[i], signatureLength[i], signaturesVerified[i]);
             out += out1;
         }
         out += "\n" + "Legend: priKL privateKey length, pubKL publicKey length, sigL signature length, sigV signature verified\n";
+        out += "\n\n****************************************\n";
         return out;
     }
 

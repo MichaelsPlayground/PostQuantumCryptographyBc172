@@ -36,14 +36,20 @@ public class PqcNtruKem {
     public static void main(String[] args) {
         //Security.addProvider(new BouncyCastleProvider());
         // we do need the regular Bouncy Castle file that includes the PQC provider
-        // get Bouncy Castle here: https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15on
-        // tested with BC version 1.71
+        // get Bouncy Castle here: https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk18on
+        // tested with BC version 1.72
         if (Security.getProvider("BCPQC") == null) {
             Security.addProvider(new BouncyCastlePQCProvider());
         }
-        System.out.println("PQC NTRU kem");
 
-        System.out.println("\n************************************\n" +
+        String print = run(false);
+        System.out.println(print);
+    }
+
+    public static String run(boolean truncateKeyOutput) {
+        String out = "PQC NTRU KEM";
+
+        out += "\n************************************\n" +
                 "* # # SERIOUS SECURITY WARNING # # *\n" +
                 "* This program is a CONCEPT STUDY  *\n" +
                 "* for the algorithm                *\n" +
@@ -55,7 +61,7 @@ public class PqcNtruKem {
                 "*                                  *\n" +
                 "*    DO NOT USE THE PROGRAM IN     *\n" +
                 "*    ANY PRODUCTION ENVIRONMENT    *\n" +
-                "************************************");
+                "************************************";
 
         // as there are 7 parameter sets available the program runs all of them
         NTRUEncryptionKeyGenerationParameters[] ntruEncryptionKeyGenerationParameterSets = {
@@ -65,7 +71,7 @@ public class PqcNtruKem {
                 NTRUEncryptionKeyGenerationParameters.APR2011_439,
                 NTRUEncryptionKeyGenerationParameters.APR2011_439_FAST,
                 NTRUEncryptionKeyGenerationParameters.APR2011_743,
-                NTRUEncryptionKeyGenerationParameters.APR2011_743_FAST,
+                NTRUEncryptionKeyGenerationParameters.APR2011_743_FAST
         };
         // short name of the parameters for the summary print out
         String[] ntruEncryptionKeyGenerationParameterNames = {
@@ -90,12 +96,13 @@ public class PqcNtruKem {
         String keyToEncryptString = "1234567890ABCDEF1122334455667788";
         byte[] keyToEncrypt = keyToEncryptString.getBytes(StandardCharsets.UTF_8);
 
+        out += "\n\n****************************************\n";
         for (int i = 0; i < nrOfSpecs; i++) {
             // generation of the NTRU key pair
             NTRUEncryptionKeyGenerationParameters ntruEncryptionKeyGenerationParameters = ntruEncryptionKeyGenerationParameterSets[i];
             String ntruParameterSpecName = ntruEncryptionKeyGenerationParameterNames[i];
             parameterSpecName[i] = ntruParameterSpecName;
-            System.out.println("\nNTRU KEM with parameterset " + ntruParameterSpecName);
+            out += "\nNTRU KEM with parameterset " + ntruParameterSpecName;
             AsymmetricCipherKeyPair keyPair = generateNtruKeyPair(ntruEncryptionKeyGenerationParameters);
 
             // get private and public key
@@ -105,8 +112,8 @@ public class PqcNtruKem {
             // storing the key as byte array
             byte[] privateKeyByte = ((NTRUEncryptionPrivateKeyParameters) privateKey).getEncoded();
             byte[] publicKeyByte = ((NTRUEncryptionPublicKeyParameters) publicKey).getEncoded();
-            System.out.println("\ngenerated private key length: " + privateKeyByte.length);
-            System.out.println("generated public key length:  " + publicKeyByte.length);
+            out += "\ngenerated private key length: " + privateKeyByte.length;
+            out += "generated public key length:  " + publicKeyByte.length;
             privateKeyLength[i] = privateKeyByte.length;
             publicKeyLength[i] = publicKeyByte.length;
 
@@ -115,26 +122,37 @@ public class PqcNtruKem {
             NTRUEncryptionPublicKeyParameters publicKeyLoad = getNtruPublicKeyFromEncoded(publicKeyByte, ntruEncryptionKeyGenerationParameters);
 
             // generate the encryption key and the encapsulated key
-            System.out.println("\nEncryption side: generate the encryption key");
+            out += "\nEncryption side: generate the encryption key";
             byte[] encryptedKey = pqcNtruEncryptKey(publicKeyLoad, keyToEncrypt);
-            System.out.println("encrypted key length: " + encryptedKey.length
-                    + " key: " + bytesToHex(encryptedKey));
+            out += "\n" + "encrypted key length: " + encryptedKey.length + " key: " + (truncateKeyOutput ?shortenString(bytesToHex(encryptedKey)):bytesToHex(encryptedKey));
             encryptedKeyLength[i] = encryptedKey.length;
 
-            System.out.println("\nDecryption side: receive the encrypted key and decrypt it to the decryption key");
+            out += "\nDecryption side: receive the encrypted key and decrypt it to the decryption key";
             byte[] decryptedKey = pqcNtruDecryptKey(privateKeyLoad, encryptedKey);
-            System.out.println("decryption key length: " + decryptedKey.length + " key: " + bytesToHex(decryptedKey));
+            out += "\n" + "decrypted key length: " + decryptedKey.length + " key: " + (truncateKeyOutput ?shortenString(bytesToHex(decryptedKey)):bytesToHex(decryptedKey));
             boolean keysAreEqual = Arrays.areEqual(keyToEncrypt, decryptedKey);
-            System.out.println("decrypted key is equal to keyToEncrypt: " + keysAreEqual);
+            out += "decrypted key is equal to keyToEncrypt: " + keysAreEqual;
             encryptionKeysEquals[i] = keysAreEqual;
+            out += "\n\n****************************************\n";
         }
 
-        System.out.println("\nTest results");
-        System.out.println("parameter spec name  priKL   pubKL encKL  keyE");
+        out += "\nTest results";
+        out += "parameter spec name  priKL   pubKL encKL  keyE" + "\n";
         for (int i = 0; i < nrOfSpecs; i++) {
-             System.out.format("%-20s%6d%8d%6d%6b%n", parameterSpecName[i], privateKeyLength[i], publicKeyLength[i], encryptedKeyLength[i], encryptionKeysEquals[i]);
+            String out1 = String.format("%-20s%6d%8d%6d%6b%n", parameterSpecName[i], privateKeyLength[i], publicKeyLength[i], encryptedKeyLength[i], encryptionKeysEquals[i]);
+            out += out1;
         }
-        System.out.println("Legend: priKL privateKey length, pubKL publicKey length, encKL encryption key length, keyE encryption keys are equal\n");
+        out += "\nLegend: priKL privateKey length, pubKL publicKey length, encKL encryption key length, keyE encryption keys are equal\n";
+        out += "\n\n****************************************\n";
+        return out;
+    }
+
+    private static String shortenString (String input) {
+        if (input != null && input.length() > 32) {
+            return input.substring(0, 32) + " ...";
+        } else {
+            return input;
+        }
     }
 
     private static AsymmetricCipherKeyPair generateNtruKeyPair(NTRUEncryptionKeyGenerationParameters ntruEncryptionKeyGenerationParameters) {

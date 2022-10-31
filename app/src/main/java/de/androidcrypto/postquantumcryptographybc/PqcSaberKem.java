@@ -29,14 +29,20 @@ public class PqcSaberKem {
     public static void main(String[] args) {
         //Security.addProvider(new BouncyCastleProvider());
         // we do need the regular Bouncy Castle file that includes the PQC provider
-        // get Bouncy Castle here: https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15on
-        // tested with BC version 1.71
+        // get Bouncy Castle here: https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk18on
+        // tested with BC version 1.72
         if (Security.getProvider("BCPQC") == null) {
             Security.addProvider(new BouncyCastlePQCProvider());
         }
-        System.out.println("PQC SABER kem");
 
-        System.out.println("\n************************************\n" +
+        String print = run(false);
+        System.out.println(print);
+    }
+
+    public static String run(boolean truncateKeyOutput) {
+        String out = "PQC SABER KEM";
+
+        out += "\n************************************\n" +
                 "* # # SERIOUS SECURITY WARNING # # *\n" +
                 "* This program is a CONCEPT STUDY  *\n" +
                 "* for the algorithm                *\n" +
@@ -48,7 +54,7 @@ public class PqcSaberKem {
                 "*                                  *\n" +
                 "*    DO NOT USE THE PROGRAM IN     *\n" +
                 "*    ANY PRODUCTION ENVIRONMENT    *\n" +
-                "************************************");
+                "************************************";
 
         // as there are 9 parameter sets available the program runs all of them
         SABERParameterSpec[] saberParameterSpecs =  {
@@ -72,12 +78,13 @@ public class PqcSaberKem {
         int[] encapsulatedKeyLength = new int[nrOfSpecs];
         boolean[] encryptionKeysEquals = new boolean[nrOfSpecs];
 
+        out += "\n\n****************************************\n";
         for (int i = 0; i < nrOfSpecs; i++) {
             // generation of the SABER key pair
             SABERParameterSpec saberParameterSpec = saberParameterSpecs[i];
             String saberParameterSpecName = saberParameterSpec.getName();
             parameterSpecName[i] = saberParameterSpecName;
-            System.out.println("\nSABER KEM with parameterset " + saberParameterSpecName);
+            out += "\nSABER KEM with parameterset " + saberParameterSpecName;
             KeyPair keyPair = generateSaberKeyPair(saberParameterSpec);
 
             // get private and public key
@@ -87,8 +94,8 @@ public class PqcSaberKem {
             // storing the key as byte array
             byte[] privateKeyByte = privateKey.getEncoded();
             byte[] publicKeyByte = publicKey.getEncoded();
-            System.out.println("\ngenerated private key length: " + privateKeyByte.length);
-            System.out.println("generated public key length:  " + publicKeyByte.length);
+            out += "\ngenerated private key length: " + privateKeyByte.length;
+            out += "\ngenerated public key length:  " + publicKeyByte.length;
             privateKeyLength[i] = privateKeyByte.length;
             publicKeyLength[i] = publicKeyByte.length;
 
@@ -97,30 +104,42 @@ public class PqcSaberKem {
             PublicKey publicKeyLoad = getSaberPublicKeyFromEncoded(publicKeyByte);
 
             // generate the encryption key and the encapsulated key
-            System.out.println("\nEncryption side: generate the encryption key and the encapsulated key");
+            out += "\nEncryption side: generate the encryption key and the encapsulated key";
             SecretKeyWithEncapsulation secretKeyWithEncapsulationSender = pqcGenerateSaberEncryptionKey(publicKeyLoad);
             byte[] encryptionKey = secretKeyWithEncapsulationSender.getEncoded();
-            System.out.println("encryption key length: " + encryptionKey.length
-                    + " key: " + bytesToHex(secretKeyWithEncapsulationSender.getEncoded()));
+            out += "\n" + "encrypted key length: " + encryptionKey.length + " key: " + (truncateKeyOutput ?shortenString(bytesToHex(encryptionKey)):bytesToHex(encryptionKey));
             byte[] encapsulatedKey = secretKeyWithEncapsulationSender.getEncapsulation();
-            System.out.println("encapsulated key length: " + encapsulatedKey.length + " key: " + bytesToHex(encapsulatedKey));
+            //out += "encapsulated key length: " + encapsulatedKey.length + " key: " + bytesToHex(encapsulatedKey);
+            out += "\n" + "encapsulated key length: " + encapsulatedKey.length + " key: " + (truncateKeyOutput ?shortenString(bytesToHex(encapsulatedKey)):bytesToHex(encapsulatedKey));
             encryptionKeyLength[i] = encryptionKey.length;
             encapsulatedKeyLength[i] = encapsulatedKey.length;
 
-            System.out.println("\nDecryption side: receive the encapsulated key and generate the decryption key");
+            out += "\nDecryption side: receive the encapsulated key and generate the decryption key";
             byte[] decryptionKey = pqcGenerateSaberDecryptionKey(privateKeyLoad, encapsulatedKey);
-            System.out.println("decryption key length: " + decryptionKey.length + " key: " + bytesToHex(decryptionKey));
+            out += "\n" + "decrypted key length: " + decryptionKey.length + " key: " + (truncateKeyOutput ?shortenString(bytesToHex(decryptionKey)):bytesToHex(decryptionKey));
             boolean keysAreEqual = Arrays.areEqual(encryptionKey, decryptionKey);
-            System.out.println("decryption key is equal to encryption key: " + keysAreEqual);
+            out += "\ndecryption key is equal to encryption key: " + keysAreEqual;
             encryptionKeysEquals[i] = keysAreEqual;
+            out += "\n\n****************************************\n";
         }
 
-        System.out.println("\nTest results");
-        System.out.println("parameter spec name  priKL   pubKL encKL capKL  keyE");
+        out += "\nTest results";
+        out += "parameter spec name  priKL   pubKL encKL capKL  keyE" + "\n";
         for (int i = 0; i < nrOfSpecs; i++) {
-             System.out.format("%-20s%6d%8d%6d%6d%6b%n", parameterSpecName[i], privateKeyLength[i], publicKeyLength[i], encryptionKeyLength[i], encapsulatedKeyLength[i], encryptionKeysEquals[i]);
+            String out1 = String.format("%-20s%6d%8d%6d%6d%6b%n", parameterSpecName[i], privateKeyLength[i], publicKeyLength[i], encryptionKeyLength[i], encapsulatedKeyLength[i], encryptionKeysEquals[i]);
+            out += out1;
         }
-        System.out.println("Legend: priKL privateKey length, pubKL publicKey length, encKL encryption key length, capKL encapsulated key length, keyE encryption keys are equal\n");
+        out += "Legend: priKL privateKey length, pubKL publicKey length, encKL encryption key length, capKL encapsulated key length, keyE encryption keys are equal\n";
+        out += "\n\n****************************************\n";
+        return out;
+    }
+
+    private static String shortenString (String input) {
+        if (input != null && input.length() > 32) {
+            return input.substring(0, 32) + " ...";
+        } else {
+            return input;
+        }
     }
 
     private static KeyPair generateSaberKeyPair(SABERParameterSpec saberParameterSpec) {

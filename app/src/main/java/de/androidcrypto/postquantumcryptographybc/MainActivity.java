@@ -42,8 +42,8 @@ public class MainActivity extends AppCompatActivity {
                 "round 4 candidates:",
                 "BIKE KEM", "Classic McEliece KEM", "HQC KEM", "SIKE (n.a., broken) KEM",
                 "round 3 candidates:",
-                "FRODO KEM",
-                "NtruLPRime KEM", "NtruSPRime KEM", "Email", "Application", "Target address"};
+                "NTRU KEM", "FRODO KEM", "SABER KEM",
+                "NtruLPRime KEM", "NtruSPRime KEM"};
 
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(
                 this,
@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     }
                     case "BIKE KEM": {
-                        runtimeWarning(view);
+                        //runtimeWarning(view);
                         initBouncyCastle();
                         clearConsole();
                         new AlertDialog.Builder(view.getContext()).setTitle("Runtime warning")
@@ -112,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     }
                     case "HQC KEM": {
-                        runtimeWarning(view);
+                        //runtimeWarning(view);
                         initBouncyCastle();
                         clearConsole();
                         new AlertDialog.Builder(view.getContext()).setTitle("Runtime warning")
@@ -193,6 +193,29 @@ public class MainActivity extends AppCompatActivity {
                                 .show();
                         break;
                     }
+                    case "NTRU KEM": {
+                        initBouncyCastle();
+                        clearConsole();
+                        new AlertDialog.Builder(view.getContext()).setTitle("Runtime warning")
+                                .setMessage("This algorithm will take some minutes to proceed and the UI will get blocked all the time, do you want to run the code anyway ?")
+                                .setPositiveButton("YES",
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                printlnX(PqcNtruKem.run(true));
+                                                dialog.dismiss();
+                                            }
+                                        })
+                                .setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        // Do nothing
+                                        dialog.dismiss();
+                                    }
+                                })
+                                .create()
+                                .show();
+                        break;
+                    }
                     case "NtruLPRime KEM": {
                         initBouncyCastle();
                         clearConsole();
@@ -216,18 +239,30 @@ public class MainActivity extends AppCompatActivity {
                                 .show();
                         break;
                     }
-                    case "Address": {
-
+                    case "SABER KEM": {
+                        initBouncyCastle();
+                        clearConsole();
+                        new AlertDialog.Builder(view.getContext()).setTitle("Runtime warning")
+                                .setMessage("This algorithm will take some minutes to proceed and the UI will get blocked all the time, do you want to run the code anyway ?")
+                                .setPositiveButton("YES",
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                printlnX(PqcSaberKem.run(true));
+                                                dialog.dismiss();
+                                            }
+                                        })
+                                .setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        // Do nothing
+                                        dialog.dismiss();
+                                    }
+                                })
+                                .create()
+                                .show();
                         break;
                     }
-                    case "Google navigation": {
 
-                        break;
-                    }
-                    case "Application": {
-
-                        break;
-                    }
                     default: {
 
                         break;
