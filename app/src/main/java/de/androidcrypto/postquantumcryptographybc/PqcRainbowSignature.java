@@ -3,6 +3,7 @@ package de.androidcrypto.postquantumcryptographybc;
 import org.bouncycastle.pqc.jcajce.provider.BouncyCastlePQCProvider;
 import org.bouncycastle.pqc.jcajce.provider.rainbow.BCRainbowPrivateKey;
 import org.bouncycastle.pqc.jcajce.provider.rainbow.BCRainbowPublicKey;
+import org.bouncycastle.pqc.jcajce.spec.RainbowParameterSpec;
 
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
@@ -25,14 +26,21 @@ public class PqcRainbowSignature {
     public static void main(String[] args) {
         //Security.addProvider(new BouncyCastleProvider());
         // we do need the regular Bouncy Castle file that includes the PQC provider
-        // get Bouncy Castle here: https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15on
-        // tested with BC version 1.71
+        // get Bouncy Castle here: https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk18on
+        // tested with BC version 1.72
         if (Security.getProvider("BCPQC") == null) {
             Security.addProvider(new BouncyCastlePQCProvider());
         }
-        System.out.println("PQC Rainbow signature");
 
-        System.out.println("\n************************************\n" +
+        String print = run(false);
+        System.out.println(print);
+
+    }
+
+    public static String run(boolean truncateSignatureOutput) {
+        String out = "PQC Rainbow signature (BC implementation)";
+
+        out += "\n************************************\n" +
                 "* # # SERIOUS SECURITY WARNING # # *\n" +
                 "* This program is a CONCEPT STUDY  *\n" +
                 "* for the algorithm                *\n" +
@@ -44,12 +52,24 @@ public class PqcRainbowSignature {
                 "*                                  *\n" +
                 "*    DO NOT USE THE PROGRAM IN     *\n" +
                 "*    ANY PRODUCTION ENVIRONMENT    *\n" +
-                "************************************");
+                "************************************";
 
         String dataToSignString = "The quick brown fox jumps over the lazy dog";
         byte[] dataToSign = dataToSignString.getBytes(StandardCharsets.UTF_8);
 
         // as there are 4 signature sets available the program runs all of them
+/*
+        RainbowParameterSpec[] specs =
+                new RainbowParameterSpec[]
+                        {
+                                RainbowParameterSpec.rainbowIIIclassic,
+                                RainbowParameterSpec.rainbowIIIcircumzenithal,
+                                RainbowParameterSpec.rainbowIIIcompressed,
+                                RainbowParameterSpec.rainbowVclassic,
+                                RainbowParameterSpec.rainbowVcircumzenithal,
+                                RainbowParameterSpec.rainbowVcompressed,
+                        };
+*/
         String[] rainbowSignatureSpecs = {
                 "SHA224WITHRainbow",
                 "SHA256WITHRainbow",
@@ -65,14 +85,15 @@ public class PqcRainbowSignature {
         int[] signatureLength = new int[nrOfSpecs];
         boolean[] signaturesVerified = new boolean[nrOfSpecs];
 
+        out += "\n\n****************************************\n";
         for (int i = 0; i < nrOfSpecs; i++) {
             // generation of the Rainbow key pair
             String signatureSpecName = rainbowSignatureSpecs[i];
             signatureSpecsName[i] = signatureSpecName;
-            System.out.println("\nRainbow signature with signature set " + signatureSpecName);
+            out += "\nRainbow signature with signature set " + signatureSpecName;
 
             // generation of the Rainbow key pair
-            KeyPair keyPair = generateRainbowKeyPair();
+            KeyPair keyPair = generateRainbowKeyPairOrg();
 
             // get private and public key
             PrivateKey privateKeyRainbow = keyPair.getPrivate();
@@ -81,8 +102,8 @@ public class PqcRainbowSignature {
             // storing the key as byte array
             byte[] privateKeyRainbowByte = privateKeyRainbow.getEncoded();
             byte[] publicKeyRainbowByte = publicKeyRainbow.getEncoded();
-            System.out.println("\ngenerated private key length: " + privateKeyRainbowByte.length);
-            System.out.println("generated public key length:  " + publicKeyRainbowByte.length);
+            out += "\ngenerated private key length: " + privateKeyRainbowByte.length;
+            out += "generated public key length:  " + publicKeyRainbowByte.length;
             privateKeyLength[i] = privateKeyRainbowByte.length;
             publicKeyLength[i] = publicKeyRainbowByte.length;;
 
@@ -90,26 +111,51 @@ public class PqcRainbowSignature {
             PrivateKey privateKeyRainbowLoad = getRainbowPrivateKeyFromEncoded(privateKeyRainbowByte);
             PublicKey publicKeyRainbowLoad = getRainbowPublicKeyFromEncoded(publicKeyRainbowByte);
 
-            System.out.println("\n* * * sign the dataToSign with the private key * * *");
+            out += "\n* * * sign the dataToSign with the private key * * *";
             byte[] signature = pqcRainbowSignature(privateKeyRainbowLoad, dataToSign, signatureSpecName);
-            System.out.println("signature length: " + signature.length + " data:\n" + bytesToHex(signature));
+            out += "signature length: " + signature.length + " data:\n" + bytesToHex(signature);
             signatureLength[i] = signature.length;
 
-            System.out.println("\n* * * verify the signature with the public key * * *");
+            out += "\n* * * verify the signature with the public key * * *";
             boolean signatureVerified = pqcRainbowVerification(publicKeyRainbowLoad, dataToSign, signature, signatureSpecName);
-            System.out.println("the signature is verified: " + signatureVerified);
+            out += "the signature is verified: " + signatureVerified;
             signaturesVerified[i] = signatureVerified;
+            out += "\n\n****************************************\n";
         }
 
-        System.out.println("\nTest results");
-        System.out.println("parameter spec name  priKL   pubKL    sigL  sigV");
+        out += "\nTest results";
+        out += "parameter spec name  priKL   pubKL    sigL  sigV" + "\n";
         for (int i = 0; i < nrOfSpecs; i++) {
-            System.out.format("%-20s%6d%8d%8d%6b%n", signatureSpecsName[i], privateKeyLength[i], publicKeyLength[i], signatureLength[i], signaturesVerified[i]);
+            String out1 = String.format("%-20s%6d%8d%8d%6b%n", signatureSpecsName[i], privateKeyLength[i], publicKeyLength[i], signatureLength[i], signaturesVerified[i]);
+            out += out1;
         }
-        System.out.println("Legend: priKL privateKey length, pubKL publicKey length, sigL signature length, sigV signature verified\n");
+        out += "Legend: priKL privateKey length, pubKL publicKey length, sigL signature length, sigV signature verified\n";
+        out += "\n\n****************************************\n";
+        return out;
     }
 
-    private static KeyPair generateRainbowKeyPair() {
+    // todo Rainbow parameters were introdused in Oct 26th 2022 and are not available in BC version 1.72
+/*
+    private static KeyPair generateRainbowKeyPairNew() {
+        KeyPairGenerator kpg = null;
+        try {
+            KeyPairGenerator kpg = KeyPairGenerator.getInstance("Rainbow", "BCPQC");
+
+            kpg.initialize(RainbowParameterSpec.rainbowIIIclassic, new SecureRandom());
+
+            KeyPair kp = kpg.generateKeyPair();
+
+
+            kpg = KeyPairGenerator.getInstance("Rainbow", "BCPQC");
+            kpg.initialize(1024);
+            return kpg.genKeyPair();
+        } catch (NoSuchAlgorithmException | NoSuchProviderException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+*/
+    private static KeyPair generateRainbowKeyPairOrg() {
         KeyPairGenerator kpg = null;
         try {
             kpg = KeyPairGenerator.getInstance("Rainbow");

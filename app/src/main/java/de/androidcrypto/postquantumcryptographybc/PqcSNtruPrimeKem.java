@@ -27,16 +27,21 @@ import java.security.spec.X509EncodedKeySpec;
 
 public class PqcSNtruPrimeKem {
 
-
     public static void main(String[] args) {
         //Security.addProvider(new BouncyCastleProvider());
         // we do need the regular Bouncy Castle file that includes the PQC provider
-        // get Bouncy Castle here: https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15on
-        // tested with BC version 1.71
+        // get Bouncy Castle here: https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk18on
+        // tested with BC version 1.72
         if (Security.getProvider("BCPQC") == null) {
             Security.addProvider(new BouncyCastlePQCProvider());
         }
-        System.out.println("PQC SNTRU Prime kem (streamlined NTRUPrime");
+        String print = run(false);
+        System.out.println(print);
+
+    }
+    // todo system.out nach out umstellen
+    public static String run(boolean truncateKeyOutput) {
+        String out = "PQC SNTRU Prime kem (streamlined NTRUPrime)";
 
         System.out.println("\n************************************\n" +
                 "* # # SERIOUS SECURITY WARNING # # *\n" +
@@ -135,6 +140,8 @@ public class PqcSNtruPrimeKem {
              System.out.format("%-20s%6d%8d%6d%6b%n", parameterSpecName[i], privateKeyLength[i], publicKeyLength[i], encryptedKeyLength[i], encryptionKeysEquals[i]);
         }
         System.out.println("Legend: priKL privateKey length, pubKL publicKey length, encKL encryption key length, keyE encryption keys are equal\n");
+        out += "\n****************************************\n";
+        return out;
     }
 
     private static AsymmetricCipherKeyPair generateNtruPrimeKeyPair(SNTRUPrimeParameters sntruPrimeParameter) {

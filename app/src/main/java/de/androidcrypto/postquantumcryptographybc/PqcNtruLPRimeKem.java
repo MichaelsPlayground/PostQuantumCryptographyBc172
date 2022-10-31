@@ -27,9 +27,15 @@ public class PqcNtruLPRimeKem {
         if (Security.getProvider("BCPQC") == null) {
             Security.addProvider(new BouncyCastlePQCProvider());
         }
-        System.out.println("PQC NTRU LPRime kem V2");
+        String print = run(false);
+        System.out.println(print);
 
-        System.out.println("\n************************************\n" +
+    }
+
+    public static String run(boolean truncateKeyOutput) {
+        String out = "PQC NTRU LPRime kem)";
+
+        out += "\n************************************\n" +
                 "* # # SERIOUS SECURITY WARNING # # *\n" +
                 "* This program is a CONCEPT STUDY  *\n" +
                 "* for the algorithm                *\n" +
@@ -42,7 +48,7 @@ public class PqcNtruLPRimeKem {
                 "*                                  *\n" +
                 "*    DO NOT USE THE PROGRAM IN     *\n" +
                 "*    ANY PRODUCTION ENVIRONMENT    *\n" +
-                "************************************");
+                "************************************";
 
         // as there are 6 parameter sets available the program runs all of them
         NTRULPRimeParameters[] ntruLPrimeParameters = new NTRULPRimeParameters[] {
@@ -62,17 +68,13 @@ public class PqcNtruLPRimeKem {
         int[] encryptedKeyLength = new int[nrOfSpecs];
         boolean[] encryptionKeysEquals = new boolean[nrOfSpecs];
 
-        // data to encrypt is usually a 32 bytes long (randomly generated) AES key
-        //String keyToEncryptString = "1234567890ABCDEF1122334455667788";
-        //byte[] keyToEncrypt = keyToEncryptString.getBytes(StandardCharsets.UTF_8);
-
+        out += "\n\n****************************************\n";
         for (int i = 0; i < nrOfSpecs; i++) {
-        //for (int i = 0; i < 1; i++) {
             // generation of the NTRU Prime key pair
             NTRULPRimeParameters ntruLPrimeParameter = ntruLPrimeParameters[i];
             String ntruPrimeParameterSpecName = ntruLPrimeParameter.getName();
             parameterSpecName[i] = ntruPrimeParameterSpecName;
-            System.out.println("\nNTRU Prime KEM with parameterset " + ntruPrimeParameterSpecName);
+            out += "\nNTRU Prime KEM with parameterset " + ntruPrimeParameterSpecName;
             AsymmetricCipherKeyPair keyPair = generateNtruLPRimeKeyPair(ntruLPrimeParameter);
 
             // get private and public key
@@ -88,8 +90,8 @@ public class PqcNtruLPRimeKem {
             byte[] privateKeyByteRho = ((NTRULPRimePrivateKeyParameters)privateKey).getRho();
             byte[] publicKeyByte = ((NTRULPRimePublicKeyParameters) publicKey).getEncoded();
 
-            System.out.println("\ngenerated private key length: " + privateKeyByte.length);
-            System.out.println("generated public key length:  " + publicKeyByte.length);
+            out += "\ngenerated private key length: " + privateKeyByte.length;
+            out += "generated public key length:  " + publicKeyByte.length;
             privateKeyLength[i] = privateKeyByte.length;
             publicKeyLength[i] = publicKeyByte.length;
             // generate the keys from a byte array
@@ -97,32 +99,42 @@ public class PqcNtruLPRimeKem {
             AsymmetricKeyParameter privateKeyLoad = getNtruLPRimePrivateKeyFromEncoded(privateKeyByteEnca, privateKeyBytePk, privateKeyByteRho, privateKeyByteHash, ntruLPrimeParameter);
 
             // generate the encryption key and the encapsulated key
-            System.out.println("\nEncryption side: generate the encryption key");
+            out += "\nEncryption side: generate the encryption key";
             SecretWithEncapsulation secretKeyWithEncapsulation = pqcNtruLPRimeGenerateSecretWithEncapsulation(publicKeyLoad);
             // this is the encryption key for e.g. aes encryption
             byte[] encryptionKey = secretKeyWithEncapsulation.getSecret();
-            System.out.println("encryption key length: " + encryptionKey.length
-                    + " key: " + bytesToHex(encryptionKey));
+            out += "encryption key length: " + encryptionKey.length
+                    + " key: " + bytesToHex(encryptionKey);
             // this is the encapsulated key that is send to the receiver
             byte[] encapsulatedKey = secretKeyWithEncapsulation.getEncapsulation();
             encryptedKeyLength[i] = encapsulatedKey.length;
-            System.out.println("encapsulated key length: " + encapsulatedKey.length
-                    + " key: " + bytesToHex(encapsulatedKey));
-
-            System.out.println("\nDecryption side: receive the encapsulated key and decrypt it to the decryption key");
+            out += "\n" + "encapsulated key length: " + encapsulatedKey.length + " key: " + (truncateKeyOutput ?shortenString(bytesToHex(encapsulatedKey)):bytesToHex(encapsulatedKey));
+            out += "\nDecryption side: receive the encapsulated key and decrypt it to the decryption key";
             byte[] decryptedKey = pqcNtruLRimeExtractSecretWithEncapsulation(privateKeyLoad, encapsulatedKey);
-            System.out.println("decryption key length: " + decryptedKey.length + " key: " + bytesToHex(decryptedKey));
+            out += "decryption key length: " + decryptedKey.length + " key: " + bytesToHex(decryptedKey);
             boolean keysAreEqual = Arrays.areEqual(encryptionKey, decryptedKey);
-            System.out.println("decrypted key is equal to keyToEncrypt: " + keysAreEqual);
+            out += "decrypted key is equal to keyToEncrypt: " + keysAreEqual;
             encryptionKeysEquals[i] = keysAreEqual;
+            out += "\n\n****************************************\n";
         }
 
-        System.out.println("\nTest results");
-        System.out.println("parameter spec name  priKL   pubKL encKL  keyE");
+        out += "\nTest results";
+        out += "parameter spec name  priKL   pubKL encKL  keyE" + "\n";
         for (int i = 0; i < nrOfSpecs; i++) {
-             System.out.format("%-20s%6d%8d%6d%6b%n", parameterSpecName[i], privateKeyLength[i], publicKeyLength[i], encryptedKeyLength[i], encryptionKeysEquals[i]);
+            String out1 = String.format("%-20s%6d%8d%6d%6b%n", parameterSpecName[i], privateKeyLength[i], publicKeyLength[i], encryptedKeyLength[i], encryptionKeysEquals[i]);
+            out += out1;
         }
-        System.out.println("Legend: priKL privateKey length, pubKL publicKey length, encKL encryption key length, keyE encryption keys are equal\n");
+        out += "\nLegend: priKL privateKey length, pubKL publicKey length, encKL encryption key length, keyE encryption keys are equal\n";
+        out += "\n****************************************\n";
+        return out;
+    }
+
+    private static String shortenString (String input) {
+        if (input != null && input.length() > 32) {
+            return input.substring(0, 32) + " ...";
+        } else {
+            return input;
+        }
     }
 
     private static AsymmetricCipherKeyPair generateNtruLPRimeKeyPair(NTRULPRimeParameters ntruLPrimeParameter) {

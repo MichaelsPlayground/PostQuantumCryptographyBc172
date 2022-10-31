@@ -43,8 +43,8 @@ public class MainActivity extends AppCompatActivity {
                 "round 4 candidates:",
                 "BIKE KEM", "Classic McEliece KEM", "HQC KEM", "SIKE (n.a., broken) KEM",
                 "round 3 candidates:",
-                "NTRU KEM", "FRODO KEM", "SABER KEM",
-                "NtruLPRime KEM", "NtruSPRime KEM"};
+                "NTRU KEM", "FRODO KEM", "SABER KEM", "Rainbow SIG",
+                "NTRULPRime KEM", "SNTRUPRime KEM"};
 
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(
                 this,
@@ -219,7 +219,7 @@ public class MainActivity extends AppCompatActivity {
                                 .show();
                         break;
                     }
-                    case "NtruLPRime KEM": {
+                    case "NTRULPRime KEM": {
                         initBouncyCastle();
                         clearConsole();
                         new AlertDialog.Builder(view.getContext()).setTitle("Runtime warning")
@@ -227,7 +227,30 @@ public class MainActivity extends AppCompatActivity {
                                 .setPositiveButton("YES",
                                         new DialogInterface.OnClickListener() {
                                             public void onClick(DialogInterface dialog, int which) {
-                                                PqcNtruLPRimeKem.main(null);
+                                                printlnX(PqcNtruLPRimeKem.run(true));
+                                                dialog.dismiss();
+                                            }
+                                        })
+                                .setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        // Do nothing
+                                        dialog.dismiss();
+                                    }
+                                })
+                                .create()
+                                .show();
+                        break;
+                    }
+                    case "SNTRUPRime KEM": {
+                        initBouncyCastle();
+                        clearConsole();
+                        new AlertDialog.Builder(view.getContext()).setTitle("Runtime warning")
+                                .setMessage("This algorithm will take some minutes to proceed and the UI will get blocked all the time, do you want to run the code anyway ?")
+                                .setPositiveButton("YES",
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                printlnX(PqcSNtruPrimeKem.run(true));
                                                 dialog.dismiss();
                                             }
                                         })
@@ -251,6 +274,30 @@ public class MainActivity extends AppCompatActivity {
                                         new DialogInterface.OnClickListener() {
                                             public void onClick(DialogInterface dialog, int which) {
                                                 printlnX(PqcSaberKem.run(true));
+                                                dialog.dismiss();
+                                            }
+                                        })
+                                .setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        // Do nothing
+                                        dialog.dismiss();
+                                    }
+                                })
+                                .create()
+                                .show();
+                        break;
+                    }
+
+                    case "Rainbow SIG": {
+                        initBouncyCastle();
+                        clearConsole();
+                        new AlertDialog.Builder(view.getContext()).setTitle("Runtime warning")
+                                .setMessage("This algorithm will take some minutes to proceed and the UI will get blocked all the time, do you want to run the code anyway ?")
+                                .setPositiveButton("YES",
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                printlnX(PqcRainbowSignature.run(true));
                                                 dialog.dismiss();
                                             }
                                         })
