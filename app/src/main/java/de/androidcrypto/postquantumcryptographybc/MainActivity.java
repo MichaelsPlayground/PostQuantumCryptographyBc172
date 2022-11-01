@@ -38,14 +38,12 @@ import java.io.OutputStreamWriter;
 import java.security.Provider;
 import java.security.Security;
 
-
 public class MainActivity extends AppCompatActivity {
 
     TextView textViewConsole, runtimeWarning;
     String consoleText = "";
     String APPTITLE = "PQC algorithms with Bouncy Castle";
     Context contextSave;
-    //String dumpExportString = "";
     AutoCompleteTextView chooseAlgorithm;
     String choiceString;
 
@@ -63,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
         textViewConsole = findViewById(R.id.textviewConsole);
         runtimeWarning = findViewById(R.id.tvMainWarningEn);
 
-        String[] type = new String[]{"choose algorithm to run","selected algorithms:",
+        String[] type = new String[]{"choose a algorithm to run","selected algorithms:",
                 "Chrystals-Kyber KEM", "Chrystals-Dilithium SIG", "Falcon SIG", "Sphincs+ SIG",
                 "round 4 candidates:",
                 "BIKE KEM", "Classic McEliece KEM", "HQC KEM", "SIKE KEM (n.a., broken)",
