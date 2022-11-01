@@ -94,7 +94,7 @@ for signatures:
 - verify the signature with the publicKey
 ```
 
-![app_view_after_starting](docs/app00.png?raw=true)
+![app_view_after_starting](docs/app03.png?raw=true)
 
 Here are 2 sample logfiles for the [Chrystals-Kyber KEM](sample_chrystal_kyber.md) and the 
 [Chrystals-Dilithium SIG](sample_chrystal_dilithium.md) algorithms.
