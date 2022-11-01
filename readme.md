@@ -52,7 +52,7 @@ NTRU (7 parameter sets)
 FRODO (6 parameter sets)
 SABER (9 parameter sets)
 NTRULPrime (6 parameter sets)
-SNTRUPrime (43 parameter sets)
+SNTRUPrime (6 parameter sets)
 
 Digital Signature Algorithms
 Rainbow (n.a., at the moment this algorithm got updated in Bouncy Castle 1.72)
@@ -80,14 +80,14 @@ please run the app only when you don\'t need your smartphone for the next minute
 Each algorithm is running the same flow:
 ```plaintext
 - generate an asymmetric key pair with a parameterset
-- encode the key to a byte array (e.g. for storing anywhere)
-- rebuild the key from its encoded form
+- encode the keys to a byte array (e.g. for storing anywhere)
+- rebuild the keys from the encoded form
 
 for kems:
 - exchange the public keys between the two parties
 - generate the encryption key on sender side with privateKeySender and publicKeyRecipient
 - generate the decryption key on recipients side with privateKeyRecipient and publicKeySender
-- compare both keys
+- compare both keys (should be equal) 
 
 for signatures:
 - sign a plaintext with the privateKey
