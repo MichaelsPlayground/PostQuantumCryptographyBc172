@@ -61,9 +61,7 @@ Picnic (12 parameter sets)
 
 Further information on Post-Quantum Algorithms and the NIST competition:
 
-The official NIST homepage: https://csrc.nist.gov/Projects/post-quantum-cryptography 
-
-Official NIST homepage: https://csrc.nist.gov/Projects/post-quantum-cryptography
+The official NIST homepage: https://csrc.nist.gov/Projects/post-quantum-cryptography
 
 Selected algorithms: https://csrc.nist.gov/Projects/post-quantum-cryptography/selected-algorithms-2022
 
