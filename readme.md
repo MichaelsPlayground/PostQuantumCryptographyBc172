@@ -1,10 +1,67 @@
-# Post Quantum Cryptography wwith Bouncy Castle
+# Post Quantum Cryptography with Bouncy Castle
 
-This version uses a final version of Bouncy Castle (1.72) to use most of the PQC finalists and candidates.
+This version uses the final version of Bouncy Castle (1.72) to use most of the PQC finalists and other candidates.
 
-see the Bouncy Castle release notes: https://github.com/bcgit/bc-java/blob/master/docs/releasenotes.html
+In your build.gradle file (project) add this line in dependencies section and yes, it is the extended provider  
+to run the NTRU examples:
 
-https://downloads.bouncycastle.org/betas/bcprov-ext-jdk18on-172b15.jar 
+```plaintext
+implementation group: 'org.bouncycastle', name: 'bcprov-ext-jdk18on', version: '1.72'
+```
+
+Your AndroidManifest.xml needs to appendings for write a file to external storage and send an email:
+```plaintext
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
+    ...
+    </application>
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.SENDTO" />
+            <data android:scheme="*" />
+        </intent>
+    </queries>
+```
+
+These implementations for Post-Quantum Algorithms are available:
+
+The selected algorithms:
+```plaintext
+Selected Algorithms: Public-key Encryption and Key-establishment Algorithms:
+CRYSTALS-KYBER (3 parameter sets)
+
+Selected Algorithms: Digital Signature Algorithms:
+CRYSTALS-DILITHIUM (3 parameter sets)
+FALCON (2 parameter sets)
+SPHINCS+ (24 parameter sets)
+```
+
+Round 4 alternative algorithms/submissions:
+```plaintext
+Round 4 Submissions: Public-key Encryption and Key-establishment Algorithms
+BIKE (3 parameter sets)
+Classic McEliece (6 parameter sets)
+HQC (3 parameter sets)
+SIKE (not available here because this algorithm is broken)
+```
+
+Some candidates from earlier rounds:
+```plaintext
+Public-key Encryption and Key-establishment Algorithms
+NTRU (7 parameter sets)
+FRODO (6 parameter sets)
+SABER (9 parameter sets)
+NTRULPrime (6 parameter sets)
+SNTRUPrime (43 parameter sets)
+
+Digital Signature Algorithms
+Rainbow (n.a., at the moment this algorithm got updated in Bouncy Castle 1.72)
+Picnic (12 parameter sets)
+```
+
+Further information on Post-Quantum Algorithms and the NIST competition:
+
+The official NIST homepage: https://csrc.nist.gov/Projects/post-quantum-cryptography 
 
 Official NIST homepage: https://csrc.nist.gov/Projects/post-quantum-cryptography
 
@@ -12,10 +69,13 @@ Selected algorithms: https://csrc.nist.gov/Projects/post-quantum-cryptography/se
 
 Round 4 submissions: https://csrc.nist.gov/Projects/post-quantum-cryptography/round-4-submissions
 
-**Be aware that this is a concept study to run all PQC algorithms. There is no output to the Android  
-application but only on the console, so you need to run the code in Android Studio and open the "Run" tab. 
-The complete run with all algorithms and parameter sets will take some minutes to complete, so please be 
-patient.**
+Bouncy Castle release notes: https://github.com/bcgit/bc-java/blob/master/docs/releasenotes.html
+
+**Be aware that this is a concept study to run all PQC algorithms. As some algorithms do have some more 
+parametersets they may take a long time to finish. Keep in my mind the warning when starting the app:**
+
+**Some algorithms will run several minutes to proceed and can block your complete user interface, so 
+please run the app only when you don\'t need your smartphone for the next minutes.**
 
 Each algorithm is running the same flow:
 ```plaintext
@@ -33,61 +93,3 @@ for signatures:
 - sign a plaintext with the privateKey
 - verify the signature with the publicKey
 ```
-
-```plaintext
-Selected Algorithms: Public-key Encryption and Key-establishment Algorithms:
-CRYSTALS-KYBER
-```
-
-```plaintext
-Selected Algorithms: Digital Signature Algorithms:
-CRYSTALS-DILITHIUM
-FALCON
-SPHINCS+
-```
-
-Round 4 searching for alternatives: https://csrc.nist.gov/Projects/post-quantum-cryptography/round-4-submissions
-
-```plaintext
-Round 4 Submissions: Public-key Encryption and Key-establishment Algorithms
-BIKE
-Classic McEliece
-HQC
-SIKE (not available here) - Note: this algorithm is broken
-```
-
-Round 3 candidates: 
-```plaintext
-Public-key Encryption and Key-establishment Algorithms
-Classic McEliece (merger of Classic McEliece and NTS-KEM): https://classic.mceliece.org/
-CRYSTALS-KYBER: https://pq-crystals.org/
-NTRU: https://ntru.org/
-NTRULPrime
-SNTRUPrime
-SABER: https://www.esat.kuleuven.be/cosic/pqcrypto/saber/
-
-Alternate Candidates: Public-key Encryption and Key-establishment Algorithms
-BIKE: http://bikesuite.org/
-FrodoKEM: http://frodokem.org/
-HQC: http://pqc-hqc.org/
-NTRU Prime: https://ntruprime.cr.yp.to/
-SIKE: http://sike.org/
-
-Digital Signature Algorithms
-CRYSTALS-DILITHIUM: https://pq-crystals.org/
-FALCON: https://falcon-sign.info/
-Rainbow: https://www.pqcrainbow.org/
-
-Alternate Candidates: Digital Signature Algorithms
-GeMSS: https://www-polsys.lip6.fr/Links/NIST/GeMSS.html
-Picnic: https://microsoft.github.io/Picnic/
-SPHINCS+: https://sphincs.org/
-```
-
-Bouncy Castle Release notes: https://www.bouncycastle.org/latest_releases.html
-
-Bouncy Castle Provider for PQC: https://github.com/bcgit/bc-java/tree/master/prov/src/main/java/org/bouncycastle/pqc/jcajce/provider
-
-Bouncy Castle Specs for PQC: https://github.com/bcgit/bc-java/tree/master/prov/src/main/java/org/bouncycastle/pqc/jcajce/spec
-
-Bouncy Castle Tests for PQC: https://github.com/bcgit/bc-java/tree/master/prov/src/test/java/org/bouncycastle/pqc/jcajce/provider/test

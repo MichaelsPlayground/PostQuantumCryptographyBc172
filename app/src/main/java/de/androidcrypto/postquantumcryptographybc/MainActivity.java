@@ -64,11 +64,11 @@ public class MainActivity extends AppCompatActivity {
         runtimeWarning = findViewById(R.id.tvMainWarningEn);
 
         String[] type = new String[]{"choose algorithm to run","selected algorithms:",
-                "Chrystals-Kyber KEM", "ChrystalsDilithium SIG", "Falcon SIG", "Sphincs+ SIG",
+                "Chrystals-Kyber KEM", "Chrystals-Dilithium SIG", "Falcon SIG", "Sphincs+ SIG",
                 "round 4 candidates:",
-                "BIKE KEM", "Classic McEliece KEM", "HQC KEM", "SIKE (n.a., broken) KEM",
-                "round 3 candidates:",
-                "NTRU KEM", "FRODO KEM", "SABER KEM", "Rainbow SIG",
+                "BIKE KEM", "Classic McEliece KEM", "HQC KEM", "SIKE KEM (n.a., broken)",
+                "other candidates:",
+                "NTRU KEM", "FRODO KEM", "SABER KEM", "Rainbow SIG (n.a.)",
                 "NTRULPRime KEM", "SNTRUPRime KEM", "Picnic SIG"};
 
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(
@@ -82,9 +82,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 String choiceString = chooseAlgorithm.getText().toString();
-
                 runtimeWarning.setVisibility(View.GONE);
-
                 switch (choiceString) {
                     case "Chrystals-Kyber KEM": {
                         initBouncyCastle();
@@ -180,7 +178,7 @@ public class MainActivity extends AppCompatActivity {
                                 .show();
                         break;
                     }
-                    case "ChrystalsDilithium SIG": {
+                    case "Chrystals-Dilithium SIG": {
                         initBouncyCastle();
                         clearConsole();
                         new AlertDialog.Builder(view.getContext()).setTitle("Runtime warning")
@@ -364,7 +362,7 @@ public class MainActivity extends AppCompatActivity {
                                 .show();
                         break;
                     }
-
+                    /* not available as BC version 1.72 is beeing updated at this time
                     case "Rainbow SIG": {
                         initBouncyCastle();
                         clearConsole();
@@ -388,7 +386,7 @@ public class MainActivity extends AppCompatActivity {
                                 .show();
                         break;
                     }
-
+                    */
                     case "Picnic SIG": {
                         initBouncyCastle();
                         clearConsole();
@@ -447,12 +445,6 @@ public class MainActivity extends AppCompatActivity {
         MainActivity.this.setTitle(APPTITLE);
     }
 
-    public void appendConsole(String message) {
-        String oldText = textViewConsole.getText().toString();
-        String newText = oldText + "\n" + message;
-        textViewConsole.setText(newText);
-    }
-
     public void printlnX(String print) {
         consoleText = consoleText + print + "\n";
         textViewConsole.setText(consoleText);
@@ -477,8 +469,6 @@ public class MainActivity extends AppCompatActivity {
         mExportMail.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                //Intent i = new Intent(MainActivity.this, AddEntryActivity.class);
-                //startActivity(i);
                 exportDumpMail();
                 return false;
             }
@@ -488,8 +478,6 @@ public class MainActivity extends AppCompatActivity {
         mExportFile.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                //Intent i = new Intent(MainActivity.this, AddEntryActivity.class);
-                //startActivity(i);
                 exportDumpFile();
                 return false;
             }
@@ -543,8 +531,8 @@ public class MainActivity extends AppCompatActivity {
         intent.setType("*/*");
         // Optionally, specify a URI for the file that should appear in the
         // system file picker when it loads.
-        //boolean pickerInitialUri = false;
-        //intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, pickerInitialUri);
+        // boolean pickerInitialUri = false;
+        // intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, pickerInitialUri);
         // get filename from edittext
         String filename = "pqc" + ".txt";
         // sanity check
