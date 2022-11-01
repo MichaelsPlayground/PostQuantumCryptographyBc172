@@ -94,5 +94,5 @@ for signatures:
 
 ![app_view_after_starting](docs/app03.png?raw=true)
 
-Here are 2 sample logfiles for the [Chrystals-Kyber KEM](sample_chrystal_kyber.md) and the 
-[Chrystals-Dilithium SIG](sample_chrystal_dilithium.md) algorithms.
+Here are 2 sample logfiles for the [Chrystals-Kyber KEM](sample_chrystals_kyber.md) and the 
+[Chrystals-Dilithium SIG](sample_chrystals_dilithium.md) algorithms.
